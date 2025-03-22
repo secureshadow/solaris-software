@@ -4,7 +4,7 @@
 
 static const char* TAG = "MPU9250"; 
 
-esp_err_t mpu9250_init(mpu9250_t *p_dev)
+esp_err_t mpu9250_init(data_t *p_dev)
 {
     // 1. Inicializa la configuración del bus SPI
     p_dev->buscfg.miso_io_num = PIN_NUM_CIPO;
@@ -81,7 +81,7 @@ esp_err_t mpu9250_init(mpu9250_t *p_dev)
     return ESP_OK;
 }
 
-esp_err_t mpu9250_send_message(mpu9250_t *p_dev) {
+esp_err_t mpu9250_send_message(data_t *p_dev) {
     esp_err_t ret= ESP_OK;
 
     ret = spi_device_transmit(p_dev->handle, &p_dev->trans_desc);
