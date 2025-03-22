@@ -1,5 +1,5 @@
 /solaris-v1/build
-/.devcontainer/devcontainer.json
+.devcontainer/devcontainer.json
 sdkconfig
 sdkconfig.old
 solaris-v1/sdkconfig
