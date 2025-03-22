@@ -5,7 +5,7 @@
 
 static const char* TAG = "BMP390";
 
-esp_err_t bmp390_init(bmp390_t *p_dev)
+esp_err_t bmp390_init(data_t *p_dev)
 {
     // 1. Configurar la estructura del bus SPI
     p_dev->buscfg.miso_io_num = PIN_NUM_CIPO;
@@ -104,7 +104,7 @@ esp_err_t bmp390_init(bmp390_t *p_dev)
     return ESP_OK;
 }
 
-esp_err_t bmp390_send_message(bmp390_t *p_dev)
+esp_err_t bmp390_send_message(data_t *p_dev)
 {
     esp_err_t ret = ESP_OK;
     // Ejecuta la transacción SPI usando la configuración en p_dev->trans_desc

@@ -7,8 +7,8 @@
 static const char *TAG = "MainApp";
 
 // Instancias para ambos dispositivos
-mpu9250_t dev; 
-bmp390_t baro_dev; 
+data_t dev; 
+data_t baro_dev; 
 
 int app_main(void)
 {
