@@ -12,9 +12,14 @@
 #define PIN_NUM_COPI       38
 #define PIN_NUM_CLK        48
 
+#define READ_OP            0x80
+#define WRITE_OP           0x00
+
 #define REG_PWR_MGMT_1     0x6B
 #define REG_WHO_AM_I       0x75
+
 #define BIT_H_RESET        0x80
+#define EMPTY_MESSAGE      0x00
 
 typedef struct {
     spi_device_handle_t handle;
@@ -29,4 +34,4 @@ typedef struct {
 esp_err_t mpu9250_init(mpu9250_t *p_dev);
 esp_err_t mpu9250_send_message(mpu9250_t *p_dev); 
 
-#endif 
+#endif

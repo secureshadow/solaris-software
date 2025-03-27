@@ -51,7 +51,7 @@ esp_err_t mpu9250_init(mpu9250_t *p_dev)
     p_dev->trans_desc.flags = 0;
 
     // 3. Reset del sensor: escribir 0x80 en PWR_MGMT_1
-    uint8_t tx_reset[2] = { REG_PWR_MGMT_1, 0x80 };
+    uint8_t tx_reset[2] = { REG_PWR_MGMT_1, BIT_H_RESET };
     uint8_t rx_reset[2] = { 0, 0 };
     p_dev->trans_desc.tx_buffer = tx_reset;
     p_dev->trans_desc.rx_buffer = rx_reset;
@@ -60,15 +60,15 @@ esp_err_t mpu9250_init(mpu9250_t *p_dev)
 
 
     // 4. Despertar el sensor: escribir 0x00 en PWR_MGMT_1
-    uint8_t tx_wakeup[2] = { REG_PWR_MGMT_1, 0x00 };
+    uint8_t tx_wakeup[2] = { (uint8_t) (WRITE_OP | REG_PWR_MGMT_1), START_CONECTION };
     uint8_t rx_wakeup[2] = { 0, 0 };
     p_dev->trans_desc.tx_buffer = tx_wakeup;
     p_dev->trans_desc.rx_buffer = rx_wakeup;
 
     ret = mpu9250_send_message(p_dev);
 
-    // 5. Leer el registro WHO_AM_I
-    uint8_t tx_data_who[2] = { (uint8_t)(0x80 | REG_WHO_AM_I), 0x00 };
+    // 5. Leer el registro WHO_AM_I: mensaje vacío por ser lectura
+    uint8_t tx_data_who[2] = { (uint8_t)(READ_OP | REG_WHO_AM_I), EMPTY_MESSAGE };
     uint8_t rx_data_who[2] = { 0, 0 };
     p_dev->trans_desc.tx_buffer = tx_data_who;
     p_dev->trans_desc.rx_buffer = rx_data_who;
