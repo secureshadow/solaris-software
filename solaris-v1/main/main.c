@@ -33,6 +33,19 @@ int app_main(void)
 
     // Aquí puedes continuar con el loop principal o más lógica si lo deseas.
     // Por ejemplo, podrías hacer lecturas periódicas de ambos sensores.
+    // Bucle principal: lectura periódica de datos del BMP390
+    while(1) {
+        int32_t pressure, temperature;
+        float altitude;
+        ret = bmp390_get_measurements(&baro_dev, &pressure, &temperature, &altitude);
+        if (ret == ESP_OK) {
+            ESP_LOGI(TAG, "Presión: %ld Pa | Temp (raw): %ld | Altitud: %.2f m", pressure, temperature, altitude);
+        } else {
+            ESP_LOGE(TAG, "Error al obtener mediciones: %d", ret);
+        }
+        vTaskDelay(pdMS_TO_TICKS(2000)); // Espera 2 segundos entre lecturas
+    }
+
 
     return ESP_OK;
 }
