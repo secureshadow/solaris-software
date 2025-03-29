@@ -1,5 +1,5 @@
-#ifndef MPU9250_H
-#define MPU9250_H
+#ifndef ICM20948_H
+#define ICM20948_H
 
 #include "driver/spi_master.h"
 #include "esp_err.h"
@@ -15,9 +15,10 @@
 #define READ_OP            0x80
 #define WRITE_OP           0x00
 
-#define REG_PWR_MGMT_1     0x6B
-#define REG_WHO_AM_I       0x75
+#define REG_PWR_MGMT_1     0x06
+#define REG_WHO_AM_I       0x00
 
+#define START_CONECTION    0x00 //Para iniciar la conexión, se pone el CS a 0x00
 #define BIT_H_RESET        0x80
 #define EMPTY_MESSAGE      0x00
 
@@ -29,9 +30,9 @@ typedef struct {
     uint8_t who_am_i;
     uint8_t reg;
     uint8_t data;
-} mpu9250_t;
+} icm20948_t;
 
-esp_err_t mpu9250_init(mpu9250_t *p_dev);
-esp_err_t mpu9250_send_message(mpu9250_t *p_dev); 
+esp_err_t icm20948_init(icm20948_t *p_dev);
+esp_err_t icm20948_send_message(icm20948_t *p_dev); 
 
 #endif

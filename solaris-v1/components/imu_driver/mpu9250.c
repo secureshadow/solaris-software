@@ -1,10 +1,10 @@
-#include "mpu9250.h"
+#include "icm20948.h"
 #include "esp_log.h"
 #include "driver/spi_common.h"
 
-static const char* TAG = "MPU9250"; 
+static const char* TAG = "ICM20948"; 
 
-esp_err_t mpu9250_init(mpu9250_t *p_dev)
+esp_err_t icm20948_init(icm20948_t *p_dev)
 {
     // 1. Inicializa la configuración del bus SPI
     p_dev->buscfg.miso_io_num = PIN_NUM_CIPO;
@@ -51,12 +51,12 @@ esp_err_t mpu9250_init(mpu9250_t *p_dev)
     p_dev->trans_desc.flags = 0;
 
     // 3. Reset del sensor: escribir 0x80 en PWR_MGMT_1
-    uint8_t tx_reset[2] = { REG_PWR_MGMT_1, BIT_H_RESET };
+    uint8_t tx_reset[2] = { (uint8_t) (WRITE_OP | REG_PWR_MGMT_1), BIT_H_RESET };
     uint8_t rx_reset[2] = { 0, 0 };
     p_dev->trans_desc.tx_buffer = tx_reset;
     p_dev->trans_desc.rx_buffer = rx_reset;
 
-    ret = mpu9250_send_message(p_dev);
+    ret = icm20948_send_message(p_dev);
 
 
     // 4. Despertar el sensor: escribir 0x00 en PWR_MGMT_1
@@ -65,7 +65,7 @@ esp_err_t mpu9250_init(mpu9250_t *p_dev)
     p_dev->trans_desc.tx_buffer = tx_wakeup;
     p_dev->trans_desc.rx_buffer = rx_wakeup;
 
-    ret = mpu9250_send_message(p_dev);
+    ret = icm20948_send_message(p_dev);
 
     // 5. Leer el registro WHO_AM_I: mensaje vacío por ser lectura
     uint8_t tx_data_who[2] = { (uint8_t)(READ_OP | REG_WHO_AM_I), EMPTY_MESSAGE };
@@ -73,7 +73,7 @@ esp_err_t mpu9250_init(mpu9250_t *p_dev)
     p_dev->trans_desc.tx_buffer = tx_data_who;
     p_dev->trans_desc.rx_buffer = rx_data_who;
 
-    ret = mpu9250_send_message(p_dev);
+    ret = icm20948_send_message(p_dev);
 
     p_dev->who_am_i = rx_data_who[1];  // El dato real viene en el segundo byte
     ESP_LOGI(TAG, "WHO_AM_I leído: 0x%02X", p_dev->who_am_i);
@@ -81,12 +81,12 @@ esp_err_t mpu9250_init(mpu9250_t *p_dev)
     return ESP_OK;
 }
 
-esp_err_t mpu9250_send_message(mpu9250_t *p_dev) {
+esp_err_t icm20948_send_message(icm20948_t *p_dev) {
     esp_err_t ret= ESP_OK;
 
     ret = spi_device_transmit(p_dev->handle, &p_dev->trans_desc);
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Error al despertar MPU9250: %d", ret);
+        ESP_LOGE(TAG, "Error al despertar ICM20948: %d", ret);
         return ret;
     } else {
         ESP_LOGI(TAG, "Sensor despertado (PWR_MGMT_1 = 0x00).");

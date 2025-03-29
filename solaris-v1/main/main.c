@@ -5,15 +5,15 @@
 
 static const char *TAG = "MainApp";
 
-mpu9250_t dev; 
+icm20948_t dev; 
 
 int app_main(void)
 {
     vTaskDelay(pdMS_TO_TICKS(5000)); // espera 5000 ms (5 segundos)
 
-    esp_err_t ret = mpu9250_init(&dev);
+    esp_err_t ret = icm20948_init(&dev);
     if (ret != ESP_OK) {
-        ESP_LOGE (TAG, "Error inicializando MPU9250: %d", ret);
+        ESP_LOGE (TAG, "Error inicializando ICM20948: %d", ret);
         return ret;
     }
 
