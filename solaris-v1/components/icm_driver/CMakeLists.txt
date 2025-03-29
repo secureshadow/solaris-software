@@ -1,5 +1,5 @@
 idf_component_register(
-    SRCS "mpu9250.c"
+    SRCS "icm20948.c"
     INCLUDE_DIRS "include"
     REQUIRES driver
 )
