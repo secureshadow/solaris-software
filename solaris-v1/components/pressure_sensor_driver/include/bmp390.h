@@ -22,7 +22,7 @@ esp_err_t bmp390_init(data_t *p_dev);
 
 esp_err_t bmp390_send_message(data_t *p_dev);
 
-esp_err_t bmp390_read_data(bmp390_t *p_dev, uint8_t reg, uint8_t *data, size_t len);
-esp_err_t bmp390_get_measurements(bmp390_t *p_dev, int32_t *pressure, int32_t *temperature, float *altitude);
+esp_err_t bmp390_read_data(data_t *p_dev, uint8_t reg, uint8_t *data, size_t len);
+esp_err_t bmp390_get_measurements(data_t *p_dev, int32_t *pressure, int32_t *temperature, float *altitude);
 
 #endif // BMP390_H
