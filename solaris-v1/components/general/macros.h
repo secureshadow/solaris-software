@@ -15,6 +15,7 @@ typedef struct {
     uint8_t who_am_i;
     uint8_t reg;
     uint8_t data;
+    uint8_t chip_id; //añado porque lo uso pero creo que se podría cambiar en bmp390.c por el who_am_i
 } data_t;
 
 #endif

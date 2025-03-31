@@ -4,6 +4,7 @@
 #include "freertos/task.h"  // Para vTaskDelay
 #include <string.h>
 #include <math.h>
+#include "macros.h"
 
 static const char* TAG = "BMP390";
 
@@ -116,7 +117,7 @@ esp_err_t bmp390_send_message(data_t *p_dev)
         ESP_LOGE(TAG, "Error en la transacción SPI: %d", ret);
         return ret;
     } else {
-        ESP_LOGI(TAG, "Sensor despertado (PWR_MGMT_1 = 0x00).");
+        ESP_LOGI(TAG, "Transacción SPI completada para BMP390. (PWR_MGMT_1 = 0x00).");
         vTaskDelay(pdMS_TO_TICKS(10));  // Breve espera para estabilizar el sensor
         return ret;
     }
