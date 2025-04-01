@@ -124,7 +124,7 @@ esp_err_t bmp390_send_message(data_t *p_dev)
 
 }
 
-esp_err_t bmp390_read_data(bmp390_t *p_dev, uint8_t reg, uint8_t *data, size_t len)
+esp_err_t bmp390_read_data(data_t *p_dev, uint8_t reg, uint8_t *data, size_t len)
 {
     // La transacción incluirá el byte de comando y los bytes de datos a leer.
     size_t total_len = len + 1;
@@ -151,7 +151,7 @@ esp_err_t bmp390_read_data(bmp390_t *p_dev, uint8_t reg, uint8_t *data, size_t l
     return ESP_OK;
 }
 
-esp_err_t bmp390_get_measurements(bmp390_t *p_dev, int32_t *pressure, int32_t *temperature, float *altitude)
+esp_err_t bmp390_get_measurements(data_t *p_dev, int32_t *pressure, int32_t *temperature, float *altitude)
 {
     esp_err_t ret;
     uint8_t press_bytes[3] = {0};
