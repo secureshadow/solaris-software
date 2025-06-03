@@ -12,10 +12,6 @@
 #define BMP390_SOFT_RESET_REG 0x7E
 #define BMP390_SOFT_RESET_CMD 0xB6
 
-// Registro DATA5 (ejemplo) y valor esperado (0x80)
-#define BMP390_DATA5_REG      0x09
-#define BMP390_DATA5_EXPECTED 0x80
-
 // Registro IF_CONF para configuración de la interfaz
 #define BMP390_IF_CONF_REG    0x1A
 // Para activar SPI (bit "spi3" = 1 y los demás en 0)
@@ -27,8 +23,7 @@ esp_err_t bmp390_soft_reset(spi_device_handle_t handle);
 esp_err_t bmp390_enable_spi_mode(spi_device_handle_t handle);
 esp_err_t bmp390_read_if_conf(spi_device_handle_t handle, uint8_t *if_conf);
 esp_err_t bmp390_read_chip_id(spi_device_handle_t handle, uint8_t *chip_id);
-esp_err_t bmp390_read_data5(spi_device_handle_t handle, uint8_t *data);
-
+esp_err_t bmp390_read_regs(spi_device_handle_t spi, uint8_t reg_start, uint8_t *data, size_t len);
 // —— Fin de tu bloque original ——
 
 // Registros nuevos para temperatura y control
@@ -36,6 +31,10 @@ esp_err_t bmp390_read_data5(spi_device_handle_t handle, uint8_t *data);
 #define BMP390_REG_DATA_3     0x07
 #define BMP390_REG_PWR_CTRL   0x1B
 #define BMP390_REG_OSR        0x1C
+#define BMP390_REG_CONFIG     0x1F 
+#define BMP390_REG_ODR        0x1D
+
+#define BMP390_TEMP_OFFSET_ADAFRUIT   (-7.0f) // Ajusta según tu sensor y condiciones
 
 // Exponemos las funciones de bajo nivel para main.c
 esp_err_t bmp390_write_reg(spi_device_handle_t handle, uint8_t reg_addr, uint8_t data);
@@ -45,5 +44,10 @@ esp_err_t bmp390_read_reg (spi_device_handle_t handle, uint8_t reg_addr, uint8_t
 esp_err_t bmp390_read_calibration(spi_device_handle_t handle);
 esp_err_t bmp390_read_raw_temperature(spi_device_handle_t handle, uint32_t *uncomp_temp);
 float     BMP390_compensate_temperature(uint32_t uncomp_temp);
+
+float bmp390_get_par_t1(void);
+float bmp390_get_par_t2(void);
+float bmp390_get_par_t3(void);
+
 
 #endif  // BMP390_H

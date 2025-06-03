@@ -13,16 +13,6 @@
 #define PIN_NUM_CLK  48  // SCK
 #define PIN_NUM_CS   18  // CS
 
-/**
- * @brief Inicializa el bus SPI y añade el dispositivo BMP390.
- *
- * Se configura con un reloj de 500 kHz, utilizando SPI3_HOST y SPI_DMA_CH_AUTO.
- * Además se establecen 8 bits de comando y 8 bits dummy para que la lectura de registros se realice
- * en una única transacción SPI.
- *
- * @param handle Puntero en el que se devolverá el handle del dispositivo SPI.
- * @return esp_err_t ESP_OK si todo va bien, o error en caso contrario.
- */
 esp_err_t bmp390_init(spi_device_handle_t *handle)
 {
     spi_bus_config_t buscfg = {
@@ -47,7 +37,6 @@ esp_err_t bmp390_init(spi_device_handle_t *handle)
         .queue_size = 7,
         .command_bits = 8,           // 8 bits para la instrucción (registro con bit de lectura)
         .dummy_bits = 8,             // 8 bits dummy para leer la respuesta
-        // address_bits se deja en 0 ya que no se utiliza en esta configuración
     };
 
     ret = spi_bus_add_device(SPI3_HOST, &devcfg, handle);
@@ -60,14 +49,6 @@ esp_err_t bmp390_init(spi_device_handle_t *handle)
     return ESP_OK;
 }
 
-/**
- * @brief Realiza un soft reset del BMP390.
- *
- * Envía el comando 0xB6 al registro 0x7E y espera 100 ms.
- *
- * @param handle Handle del dispositivo SPI.
- * @return esp_err_t ESP_OK si se realizó correctamente, u otro error.
- */
 esp_err_t bmp390_soft_reset(spi_device_handle_t handle)
 {
     uint8_t tx_data[2] = { BMP390_SOFT_RESET_REG & 0x7F, BMP390_SOFT_RESET_CMD };
@@ -87,14 +68,6 @@ esp_err_t bmp390_soft_reset(spi_device_handle_t handle)
     return ESP_OK;
 }
 
-/**
- * @brief Activa el modo SPI del BMP390 escribiendo en el registro IF_CONF (0x1A).
- *
- * Se escribe el valor 0x01 en IF_CONF para poner el bit "spi3" a 1, lo que habilita el modo SPI.
- *
- * @param handle Handle del dispositivo SPI.
- * @return esp_err_t ESP_OK si la operación fue exitosa, u otro error en caso de fallo.
- */
 esp_err_t bmp390_enable_spi_mode(spi_device_handle_t handle)
 {
     // Para escribir usamos la transacción tradicional (sin utilizar command_bits)
@@ -113,17 +86,7 @@ esp_err_t bmp390_enable_spi_mode(spi_device_handle_t handle)
     return ESP_OK;
 }
 
-/**
- * @brief Lee un registro del BMP390 utilizando la nueva configuración de SPI.
- *
- * Se utiliza el campo cmd de la transacción: se pone el registro a leer con el bit de lectura (0x80) y el driver
- * se encarga de enviar 8 bits dummy para recibir el dato.
- *
- * @param handle Handle del dispositivo SPI.
- * @param reg Registro a leer.
- * @param val Puntero donde se almacenará el valor leído (8 bits).
- * @return esp_err_t ESP_OK si la operación fue exitosa, u otro error en caso de fallo.
- */
+
 esp_err_t bmp390_read_reg(spi_device_handle_t handle, uint8_t reg, uint8_t *val)
 {
     spi_transaction_t t;
@@ -136,13 +99,6 @@ esp_err_t bmp390_read_reg(spi_device_handle_t handle, uint8_t reg, uint8_t *val)
     return spi_device_polling_transmit(handle, &t);
 }
 
-/**
- * @brief Lee el registro IF_CONF del BMP390.
- *
- * @param handle Handle del dispositivo SPI.
- * @param if_conf Puntero donde se almacenará el valor leído del registro IF_CONF.
- * @return esp_err_t ESP_OK si la operación fue exitosa, u otro error.
- */
 esp_err_t bmp390_read_if_conf(spi_device_handle_t handle, uint8_t *if_conf)
 {
     esp_err_t ret = bmp390_read_reg(handle, BMP390_IF_CONF_REG, if_conf);
@@ -154,13 +110,6 @@ esp_err_t bmp390_read_if_conf(spi_device_handle_t handle, uint8_t *if_conf)
     return ret;
 }
 
-/**
- * @brief Lee el valor del registro CHIP ID del BMP390.
- *
- * @param handle Handle del dispositivo SPI.
- * @param chip_id Puntero donde se almacenará el valor leído.
- * @return esp_err_t ESP_OK si la operación fue exitosa, u otro error.
- */
 esp_err_t bmp390_read_chip_id(spi_device_handle_t handle, uint8_t *chip_id)
 {
     esp_err_t ret = bmp390_read_reg(handle, BMP390_CHIP_ID_REG, chip_id);
@@ -168,24 +117,6 @@ esp_err_t bmp390_read_chip_id(spi_device_handle_t handle, uint8_t *chip_id)
         ESP_LOGE(TAG, "Error al leer CHIP ID: %d", ret);
     } else {
         ESP_LOGI(TAG, "CHIP ID leído: 0x%02X", *chip_id);
-    }
-    return ret;
-}
-
-/**
- * @brief Lee el registro DATA5 (0x09) del BMP390.
- *
- * @param handle Handle del dispositivo SPI.
- * @param data Puntero donde se almacenará el valor leído.
- * @return esp_err_t ESP_OK si la operación fue exitosa, u otro error.
- */
-esp_err_t bmp390_read_data5(spi_device_handle_t handle, uint8_t *data)
-{
-    esp_err_t ret = bmp390_read_reg(handle, BMP390_DATA5_REG, data);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Error al leer DATA5: %d", ret);
-    } else {
-        ESP_LOGI(TAG, "DATA5 leído: 0x%02X", *data);
     }
     return ret;
 }
@@ -203,35 +134,51 @@ esp_err_t bmp390_write_reg(spi_device_handle_t spi, uint8_t reg_addr, uint8_t da
     return spi_device_transmit(spi, &t);
 }
 
+esp_err_t bmp390_read_regs(spi_device_handle_t spi, uint8_t reg_start, uint8_t *data, size_t len)
+{
+    spi_transaction_t t = {0};
+    t.cmd = reg_start | 0x80; // registro inicial con bit de lectura
+    t.length = len * 8;
+    t.rxlength = len * 8;
+    t.rx_buffer = data;
+    return spi_device_polling_transmit(spi, &t);
+}
+
 // Variables internas para calibración de temperatura
 static float _par_t1, _par_t2, _par_t3;
 
-// Burst-read de coeficientes de temperatura (0x30…0x35)
+// Burst-read de coeficientes de temperatura (0x31…0x36)
 esp_err_t bmp390_read_calibration(spi_device_handle_t spi)
 {
-    uint8_t buf[6];
-    for (int i = 0; i < 6; i++) {
-        esp_err_t r = bmp390_read_reg(spi, 0x30 + i, &buf[i]);
-        if (r != ESP_OK) return r;
-    }
-    uint16_t raw_t1 = ((uint16_t)buf[1] << 8) | buf[0];
-    uint16_t raw_t2 = ((uint16_t)buf[3] << 8) | buf[2];
-    int8_t  raw_t3 = (int8_t)buf[5];
-    _par_t1 = raw_t1 / 256.0f;               // 2^8
+    uint8_t buf[5];
+    bmp390_read_regs(spi, 0x31, buf, 5);
+
+    // Ahora buf[0]=0x31, buf[1]=0x32, buf[2]=0x33, buf[3]=0x34, buf[4]=0x35
+    uint16_t raw_t1 = ((uint16_t)buf[0] << 8) | buf[1];  // 0x31(MSB)/0x32(LSB)
+    uint16_t raw_t2 = ((uint16_t)buf[2] << 8) | buf[3];  // 0x33(MSB)/0x34(LSB)
+    int8_t  raw_t3 = (int8_t)buf[4];                    // 0x35 (T3)
+
+    // NUEVO: Imprime los valores crudos para depuración
+    ESP_LOGI(TAG, "Buf calib: %02X %02X %02X %02X %02X", buf[0], buf[1], buf[2], buf[3], buf[4]);
+
+    _par_t1 = raw_t1 / 256.0f;               // 2^-8
     _par_t2 = raw_t2 / 1073741824.0f;        // 2^30 :contentReference[oaicite:1]{index=1}
     _par_t3 = raw_t3 / 281474976710656.0f;
     ESP_LOGI(TAG, "Calib T: t1=%.6f t2=%.6f t3=%.12f", _par_t1, _par_t2, _par_t3);
     return ESP_OK;
 }
 
+
 // Lectura cruda de temperatura (3 bytes DATA_3…DATA_5)
 esp_err_t bmp390_read_raw_temperature(spi_device_handle_t spi, uint32_t *uncomp_temp)
 {
     uint8_t raw[3];
-    for (int i = 0; i < 3; i++) {
-        esp_err_t r = bmp390_read_reg(spi, BMP390_REG_DATA_3 + i, &raw[i]);
-        if (r != ESP_OK) return r;
-    }
+    esp_err_t r = bmp390_read_regs(spi, BMP390_REG_DATA_3, raw, 3);
+    if (r != ESP_OK) return r;
+
+    ESP_LOGI(TAG, "Temp raw: %02X %02X %02X", raw[0], raw[1], raw[2]);
+
+
     // Convert 24-bit register data to 20-bit ADC value by discarding 4 LSBs
      uint32_t u24 = ((uint32_t)raw[2] << 16)
                   | ((uint32_t)raw[1] <<  8)
@@ -245,5 +192,9 @@ float BMP390_compensate_temperature(uint32_t uncomp_temp)
 {
     float pd1 = (float)uncomp_temp - _par_t1;
     float pd2 = pd1 * _par_t2;
-    return pd2 + pd1 * pd1 * _par_t3;
+    return pd2 + (pd1 * pd1) * _par_t3;
 }
+
+float bmp390_get_par_t1(void) { return _par_t1; }
+float bmp390_get_par_t2(void) { return _par_t2; }
+float bmp390_get_par_t3(void) { return _par_t3; }
