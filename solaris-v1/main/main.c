@@ -7,65 +7,128 @@
 
 static const char *TAG = "MAIN";
 
-// Tconv para OSR×2 ≈ 10 ms
-#define TCONV_MS        10
-// Periodo entre muestras: 5 s
-#define SAMPLE_MS     5000
-
 void app_main(void)
 {
     spi_device_handle_t spi;
     esp_err_t ret;
+    uint8_t id, ifc;
+    bmp390_temp_calib_t raw_calib;
+    bmp390_temp_params_t temp_params;
+    uint32_t raw_temp;
 
+    // Tiempo para estabilizar alimentación
     vTaskDelay(pdMS_TO_TICKS(2000));
 
-    // 1) Inicializar SPI y sensor
+    //---------Inicializar----------
     ret = bmp390_init(&spi);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Error init BMP390: %d", ret);
         return;
     }
-    bmp390_soft_reset(spi);
-    bmp390_enable_spi_mode(spi);
 
-    // 2) Leer y mostrar calibración
-    bmp390_temp_calib_t rawcal;
-    bmp390_read_temp_calibration(spi, &rawcal);
-    printf("RAW CAL: par_t1=0x%04X, par_t2=0x%04X, par_t3=0x%02X\n",
-           rawcal.par_t1, (uint16_t)rawcal.par_t2, (uint8_t)rawcal.par_t3);
+    ret = bmp390_soft_reset(spi);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Error soft reset: %d", ret);
+        return;
+    }
 
-    bmp390_temp_params_t tpar;
-    bmp390_temp_params(spi, &tpar);
-    printf("CONV CAL: PAR_T1=%.5f, PAR_T2=%.8f, PAR_T3=%.15e\n",
-           tpar.PAR_T1, tpar.PAR_T2, tpar.PAR_T3);
+    ret = bmp390_enable_spi_mode(spi);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Error enable SPI mode: %d", ret);
+        return;
+    }
+    
+    // Dejar tiempo al primer ciclo de configuración
+    vTaskDelay(pdMS_TO_TICKS(50));
 
-    // 3) Configurar rápido: OSR×2 e IIR coef=3
-    bmp390_write_reg(spi, BMP390_REG_OSR,    BMP390_OSR_TEMP_x2);
-    bmp390_write_reg(spi, BMP390_REG_CONFIG, BMP390_IIR_COEFF_3);
+    //-------Comprobación----------
+    ret = bmp390_read_chip_id(spi, &id);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Error al leer CHIP ID: %d", ret);
+        return;
+    }
+    if (id != BMP390_CHIP_ID_VALUE) {
+        ESP_LOGE(TAG, "CHIP ID inesperado: 0x%02X", id);
+        return;
+    }
+    ESP_LOGI(TAG, "CHIP ID confirmado: 0x%02X", id);
 
-    // 4) Bucle de medidas en Forced Mode
-    while (1) {
-        // a) disparar conversión puntual
-        bmp390_write_reg(spi, BMP390_REG_PWR_CTRL, BMP390_PWRCTRL_FORCED);
+    ret = bmp390_read_if_conf(spi, &ifc);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Error al leer IF_CONF: %d", ret);
+        return;
+    }
 
-        // b) esperar Tconv
-        vTaskDelay(pdMS_TO_TICKS(TCONV_MS));
+    //-------Configuración sensor-------
+    ret = bmp390_set_mode_normal(spi);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Error modo normal: %d", ret);
+        return;
+    }
+    ret = bmp390_set_osr_temp(spi);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Error OSR: %d", ret);
+        return;
+    }
+    ret = bmp390_set_odr(spi);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Error ODR: %d", ret);
+        return;
+    }
+    ret = bmp390_set_iir(spi);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Error IIR: %d", ret);
+        return;
+    }
 
-        // c) leer raw24 y desplazar
-        uint32_t raw24;
-        bmp390_read_raw_temp(spi, &raw24);
-        uint32_t raw20 = raw24 >> 4;
+    // Dejar tiempo al primer dato en Normal mode
+    vTaskDelay(pdMS_TO_TICKS(50));
 
-        // d) compensar directamente
-        float temp_c = bmp390_compensate_temperature(raw20, &tpar);
+    // ---Leer coeficientes de temperatura raw---
+    ret = bmp390_read_raw_coeffs(spi, &raw_calib);
+    if (ret == ESP_OK) {
+        ESP_LOGI(TAG, "Coef raw T1=%u, T2=%d, T3=%d",
+                 raw_calib.par_t1,
+                 raw_calib.par_t2,
+                 raw_calib.par_t3);
+    } else {
+        ESP_LOGE(TAG, "Error al leer coef. calib.: %d", ret);
+        return;
+    }
 
-        // e) mostrar
-        printf("RAW24=0x%06" PRIX32
-               " RAW20=0x%05" PRIX32
-               " → T=%.2f°C\n",
-               raw24, raw20, temp_c);
+    // --- Calibrar parámetros de temperatura ---
+    ret = bmp390_calibrate_params(spi, &temp_params);
+    if (ret == ESP_OK) {
+        ESP_LOGI(TAG, "PAR_T1 calibrado: %.4f",  temp_params.PAR_T1);
+        ESP_LOGI(TAG, "PAR_T2 calibrado: %.6e",  temp_params.PAR_T2);
+        ESP_LOGI(TAG, "PAR_T3 calibrado: %.6e",  temp_params.PAR_T3);
+    } else {
+        ESP_LOGE(TAG, "Error al calibrar params: %d", ret);
+        return;
+    }
 
-        // f) esperar siguiente ciclo
-        vTaskDelay(pdMS_TO_TICKS(SAMPLE_MS));
+    //--- Bucle de lectura de temperatura cruda ---
+       while (1) {
+        ret = bmp390_wait_temp_ready(spi);
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "Error wait temp ready: %d", ret);
+            break;
+        }
+
+        ret = bmp390_read_raw_temp(spi, &raw_temp);
+        if (ret == ESP_OK) {
+            ESP_LOGI(TAG, "Raw temp: %u", raw_temp);
+
+            // ← aquí añadimos la compensación
+            float comp_temp = bmp390_compensate_temperature(raw_temp, &temp_params);
+            ESP_LOGI(TAG, "Temp compensada: %.2f °C", comp_temp);
+
+        } else {
+            ESP_LOGE(TAG, "Error read raw temp: %d", ret);
+            break;
+        }
+
+        // Delay para pruebas en banco (5 s)
+        vTaskDelay(pdMS_TO_TICKS(5000));
     }
 }
