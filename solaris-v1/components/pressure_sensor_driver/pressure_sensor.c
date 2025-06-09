@@ -1,4 +1,4 @@
-#include "bmp390.h"
+#include "pressure_sensor.h"
 #include <stdio.h> 
 
 void pressure_sensor_init(){
