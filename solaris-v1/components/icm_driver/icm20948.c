@@ -77,11 +77,25 @@ esp_err_t icm20948_init(data_t *p_dev) {
     p_dev->trans_desc.rxlength = 0; //Por defecto, igual que .length
     p_dev->trans_desc.flags = 0;
 
+    // Leer el registro WHO_AM_I: mensaje vacío por ser lectura
+    uint8_t tx_data_who[2] = { (uint8_t)(READ_OP | REG_WHO_AM_I), EMPTY_MESSAGE };
+    uint8_t rx_data_who[2] = { 0, 0 };
+
+    ret = icm20948_send_message(p_dev, tx_data_who, rx_data_who);
+
+    p_dev->who_am_i = rx_data_who[1];  // El dato real viene en el segundo byte
+    ESP_LOGI(TAG, "WHO_AM_I leído: 0x%02X", p_dev->who_am_i);
+
     // 3. Reset del sensor: escribir 0x80 en PWR_MGMT_1
     uint8_t tx_reset[2] = { (uint8_t) (WRITE_OP | REG_PWR_MGMT_1), BIT_H_RESET };
     uint8_t rx_reset[2] = { 0, 0 };
 
     ret = icm20948_send_message(p_dev, tx_reset, rx_reset);
+
+    uint8_t tx_user_ctrl_2[2] = { (uint8_t) (WRITE_OP | REG_USER_CTRL), EMPTY_MESSAGE};
+    uint8_t rx_user_ctrl_2[2] = { 0, 0 };
+    ret = icm20948_send_message(p_dev, tx_user_ctrl_2, rx_user_ctrl_2);
+
 
     // 4. Comprobación de USER_CTRL
     uint8_t tx_user_ctrl[2] = { (uint8_t) (READ_OP | REG_USER_CTRL), EMPTY_MESSAGE};
@@ -117,17 +131,7 @@ esp_err_t icm20948_init(data_t *p_dev) {
     } else {
         ESP_LOGI(TAG, "Sensor despertado (PWR_MGMT_1 = 0x00).");
         vTaskDelay(pdMS_TO_TICKS(10));  // Breve espera para estabilizar el sensor
-        return ret;
     }
-
-    // 5. Leer el registro WHO_AM_I: mensaje vacío por ser lectura
-    uint8_t tx_data_who[2] = { (uint8_t)(READ_OP | REG_WHO_AM_I), EMPTY_MESSAGE };
-    uint8_t rx_data_who[2] = { 0, 0 };
-
-    ret = icm20948_send_message(p_dev, tx_data_who, rx_data_who);
-
-    p_dev->who_am_i = rx_data_who[1];  // El dato real viene en el segundo byte
-    ESP_LOGI(TAG, "WHO_AM_I leído: 0x%02X", p_dev->who_am_i);
 
     return ESP_OK;
 }
