@@ -83,7 +83,29 @@ esp_err_t icm20948_init(data_t *p_dev) {
 
     ret = icm20948_send_message(p_dev, tx_reset, rx_reset);
 
-    // 4. Despertar el sensor: escribir 0x00 en PWR_MGMT_1
+    // 4. Comprobación de USER_CTRL
+    uint8_t tx_user_ctrl[2] = { (uint8_t) (READ_OP | REG_USER_CTRL), EMPTY_MESSAGE};
+    uint8_t rx_user_ctrl[2] = { 0, 0 };
+    ret = icm20948_send_message(p_dev, tx_user_ctrl, rx_user_ctrl);
+
+    ESP_LOGI(TAG, " valor del USER_CTRL esperado: 0x00 | Leído: 0x%02X", rx_user_ctrl[1]);
+
+
+    // 5. Comprobación de LP_CONFIG
+    uint8_t tx_lp_config[2] = { (uint8_t) (READ_OP | REG_LP_CONFIG), EMPTY_MESSAGE};
+    uint8_t rx_lp_config[2] = { 0, 0 };
+    ret = icm20948_send_message(p_dev, tx_lp_config, rx_lp_config);
+
+    ESP_LOGI(TAG, " valor del LP_CONFIG esperado: 0x40 | Leído: 0x%02X", rx_lp_config[1]);
+
+    // 6. Despertar 6-axis en acelerómetro y giroscopio: escribir 0x00 en PWR_MGMT_2
+    uint8_t tx_axis[2] = { (uint8_t) (READ_OP | REG_LP_CONFIG), EMPTY_MESSAGE};
+    uint8_t rx_axis[2] = { 0, 0 };
+    ret = icm20948_send_message(p_dev, tx_axis, rx_axis);
+
+    ESP_LOGI(TAG, " valor del PWR_MGMT_2 esperado: 0x00 | Leído: 0x%02X", rx_axis[1]);
+
+    // 7. Despertar el sensor: escribir 0x00 en PWR_MGMT_1
     uint8_t tx_wakeup[2] = { (uint8_t) (WRITE_OP | REG_PWR_MGMT_1), START_CONECTION };
     uint8_t rx_wakeup[2] = { 0, 0 };
 
