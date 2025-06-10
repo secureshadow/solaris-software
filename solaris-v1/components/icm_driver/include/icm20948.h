@@ -13,6 +13,8 @@
 
 #define REG_PWR_MGMT_1     0x06
 #define REG_WHO_AM_I       0x00
+#define REG_USER_CTRL      0x03
+#define REG_LP_CONFIG      0x05s
 
 #define START_CONECTION    0x00 //Para iniciar la conexión, se pone el CS a 0x00
 #define BIT_H_RESET        0x80
