@@ -16,16 +16,20 @@ int app_main(void)
     vTaskDelay(pdMS_TO_TICKS(5000));
 
     // Inicializar los sensores usando los structs ya creados.
-    if (init_common_sensors(&icm_dev, &baro_dev) != ESP_OK) {
+    esp_err_t com_result = init_common_sensors(&icm_dev, &baro_dev);
+
+    if (com_result != ESP_OK) {
         ESP_LOGE(TAG, "Error en la inicialización de los sensores.");
         return ESP_FAIL;
+    } else {
+        // Lectura periódica de los datos en los sensores
+        while (1) {
+            read_common_sensors(&icm_dev, &baro_dev);
+            vTaskDelay(pdMS_TO_TICKS(2000));
+        }
+
+        return ESP_OK;
     }
 
-    // Bucle principal: leer los sensores cada 2 segundos.
-    while (1) {
-        read_common_sensors(&icm_dev, &baro_dev);
-        vTaskDelay(pdMS_TO_TICKS(2000));
-    }
 
-    return ESP_OK;
 }

@@ -10,7 +10,7 @@ esp_err_t icm20948_send_message(data_t *p_dev, uint8_t tx[2], uint8_t rx[2]) {
     p_dev->trans_desc.tx_buffer = tx;
     p_dev->trans_desc.rx_buffer = rx;
 
-    esp_err_t ret = ESP_OK;
+    esp_err_t ret;
     ret = spi_device_transmit(p_dev->handle, &p_dev->trans_desc);
     return ret;
 }
@@ -34,6 +34,7 @@ esp_err_t get_data(data_t *p_dev, uint8_t address1, uint8_t address2, int16_t *p
 }
 
 esp_err_t icm20948_init(data_t *p_dev) {
+
     // 1. Inicializa la configuración del bus SPI
     p_dev->buscfg.miso_io_num = PIN_NUM_CIPO;
     p_dev->buscfg.mosi_io_num = PIN_NUM_COPI;
@@ -51,7 +52,7 @@ esp_err_t icm20948_init(data_t *p_dev) {
 
     // 2. Configura el dispositivo SPI (CS, velocidad, modo, etc.)
     p_dev->devcfg.clock_speed_hz = 100000;
-    p_dev->devcfg.mode = 3;           // Puedes probar también con modo 0 si es necesario
+    p_dev->devcfg.mode = 3;           // Probar en modo 0 si falla
     p_dev->devcfg.spics_io_num = PIN_NUM_CS;
     p_dev->devcfg.queue_size = 1;
     p_dev->devcfg.address_bits = 0;
@@ -61,7 +62,6 @@ esp_err_t icm20948_init(data_t *p_dev) {
     p_dev->devcfg.duty_cycle_pos = 128;
     p_dev->devcfg.pre_cb = NULL;
     p_dev->devcfg.post_cb = NULL;
-
     vTaskDelay(pdMS_TO_TICKS(100)); // Espera adicional de 100 ms
 
     ret = spi_bus_add_device(SPI_HOST_USED, &p_dev->devcfg, &p_dev->handle);
@@ -74,70 +74,36 @@ esp_err_t icm20948_init(data_t *p_dev) {
 
 
     // Variables en principio fijas para todas las transacciones
-    p_dev->trans_desc.length = 16;
-    p_dev->trans_desc.rxlength = 0; //Por defecto, igual que .length
-    p_dev->trans_desc.flags = 0;
-
-    // 3. Reset del sensor: escribir 0x80 en PWR_MGMT_1
     uint8_t tx_reset[2] = { (uint8_t) (WRITE_OP | REG_PWR_MGMT_1), BIT_H_RESET };
     uint8_t rx_reset[2] = { 0, 0 };
+    
+    p_dev->trans_desc.length = 16;
+    p_dev->trans_desc.tx_buffer = tx_reset;
+    p_dev->trans_desc.rx_buffer = rx_reset;
 
-    ret = icm20948_send_message(p_dev, tx_reset, rx_reset);
+    esp_err_t prueba = spi_device_transmit(p_dev->handle, &p_dev->trans_desc);
+    if (prueba != ESP_OK) {
+        ESP_LOGE(TAG, "El reset del sensor ha fallado");
+    } 
 
-    // 3. Desactivar modo I2C
-    uint8_t tx_reset_2[2] = { (uint8_t) (WRITE_OP | REG_USER_CTRL), 0x10};
-    uint8_t rx_reset_2[2] = { 0, 0 };
+    // Leemos el contenido de PWR_MGMT_1
+    uint8_t tx_read[2] = { (uint8_t) (READ_OP | REG_PWR_MGMT_1), EMPTY_MESSAGE };
+    uint8_t rx_read[2] = { 0, 0 };
+    
+    p_dev->trans_desc.length = 16;
+    p_dev->trans_desc.tx_buffer = tx_read;
+    p_dev->trans_desc.rx_buffer = rx_read;
 
-    ret = icm20948_send_message(p_dev, tx_reset_2, rx_reset_2);
-
-    // Leer el registro WHO_AM_I: mensaje vacío por ser lectura
-    uint8_t tx_data_who[2] = { (uint8_t)(READ_OP | REG_WHO_AM_I), EMPTY_MESSAGE };
-    uint8_t rx_data_who[2] = { 0, 0 };
-
-    ret = icm20948_send_message(p_dev, tx_data_who, rx_data_who);
-
-    p_dev->who_am_i = rx_data_who[1];  // El dato real viene en el segundo byte
-    ESP_LOGI(TAG, "WHO_AM_I leído: 0x%02X", p_dev->who_am_i);
-
-
-
-    // 4. Comprobación de USER_CTRL
-    uint8_t tx_user_ctrl[2] = { (uint8_t) (READ_OP | REG_USER_CTRL), EMPTY_MESSAGE};
-    uint8_t rx_user_ctrl[2] = { 0, 0 };
-    ret = icm20948_send_message(p_dev, tx_user_ctrl, rx_user_ctrl);
-
-    ESP_LOGI(TAG, " valor del USER_CTRL esperado: 0x00 | Leído: 0x%02X", rx_user_ctrl[1]);
-
-
-    // 5. Comprobación de LP_CONFIG
-    uint8_t tx_lp_config[2] = { (uint8_t) (READ_OP | REG_LP_CONFIG), EMPTY_MESSAGE};
-    uint8_t rx_lp_config[2] = { 0, 0 };
-    ret = icm20948_send_message(p_dev, tx_lp_config, rx_lp_config);
-
-    ESP_LOGI(TAG, " valor del LP_CONFIG esperado: 0x40 | Leído: 0x%02X", rx_lp_config[1]);
-
-    // 6. Despertar 6-axis en acelerómetro y giroscopio: escribir 0x00 en PWR_MGMT_2
-    uint8_t tx_axis[2] = { (uint8_t) (READ_OP | REG_LP_CONFIG), EMPTY_MESSAGE};
-    uint8_t rx_axis[2] = { 0, 0 };
-    ret = icm20948_send_message(p_dev, tx_axis, rx_axis);
-
-    ESP_LOGI(TAG, " valor del PWR_MGMT_2 esperado: 0x00 | Leído: 0x%02X", rx_axis[1]);
-
-    // 7. Despertar el sensor: escribir 0x00 en PWR_MGMT_1
-    uint8_t tx_wakeup[2] = { (uint8_t) (WRITE_OP | REG_PWR_MGMT_1), START_CONECTION };
-    uint8_t rx_wakeup[2] = { 0, 0 };
-
-    ret = icm20948_send_message(p_dev, tx_wakeup, rx_wakeup);
-
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Error al despertar ICM20948: %d", ret);
-        return ret;
+    esp_err_t prueba_2 = spi_device_transmit(p_dev->handle, &p_dev->trans_desc);
+    if (prueba_2 != ESP_OK) {
+        ESP_LOGE(TAG, "El reset del sensor ha fallado");
     } else {
-        ESP_LOGI(TAG, "Sensor despertado (PWR_MGMT_1 = 0x00).");
-        vTaskDelay(pdMS_TO_TICKS(10));  // Breve espera para estabilizar el sensor
+        ESP_LOGI(TAG, "El registro PWR_MGMT_1 debería ser 0x41 | Leído: 0x%02X", rx_read[1]);
     }
 
-    return ESP_OK;
+
+
+    return ret;
 }
 
 
