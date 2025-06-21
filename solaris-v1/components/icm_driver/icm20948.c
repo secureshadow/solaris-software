@@ -126,29 +126,38 @@ esp_err_t icm20948_config(data_t *p_dev) {
         ESP_LOGE(TAG, "PWR_MGMT_1 changed, read 0x%02X | should be: 0x01", rx_sleep_off[1]);
     }
 
-    /* 
+
     // Cambiar a banco 2 de registros
-    uint8_t tx_bank_sel[2] = { (uint8_t) (WRITE_OP | REG_BANK_SEL_0), 0x02 };
+    uint8_t tx_bank_sel[2] = { (uint8_t) (WRITE_OP | REG_BANK_SEL), 0x20 };
     uint8_t rx_bank_sel[2] = { 0, 0 };
 
     ret = send_message(p_dev, tx_bank_sel, rx_bank_sel);
 
-    // Leer datos de ACCEL_CONFIG y ACCEL_CONFIG_2
-    uint8_t tx_accel_conf_1[2] = { (uint8_t) (READ_OP) | 0x14, EMPTY_MESSAGE };
-    uint8_t rx_accel_conf_1[2] = { 0, 0 };
+    // Configuración del filtro de paso bajo del acelerómetro
+    uint8_t tx_accel_conf[2] = { (uint8_t) (WRITE_OP | REG_ACCEL_CONFIG), ACCEL_FILTER_SELEC };
+    uint8_t rx_accel_conf[2] = { 0, 0 };
 
-    ret = send_message(p_dev, tx_accel_conf_1, rx_accel_conf_1);
+    ret = send_message(p_dev, tx_accel_conf, rx_accel_conf);
     if (ret == ESP_OK) {
-        ESP_LOGE(TAG, "ACCEL_CONFIG read 0x%02X", rx_accel_conf_1[1]);
+        ESP_LOGE(TAG, "ACCEL_CONFIG modified succesfully, now low pass filter is activated");
     }
 
-    uint8_t tx_accel_conf_2[2] = { (uint8_t) (READ_OP | 0x15), EMPTY_MESSAGE };
-    uint8_t rx_accel_conf_2[2] = { 0, 0 };
+    // Configuración del filtro de paso bajo del giroscopio
+    uint8_t tx_gyro_conf[2] = { (uint8_t) (WRITE_OP | REG_GYRO_CONFIG), GYRO_FILTER_SELEC };
+    uint8_t rx_gyro_conf[2] = { 0, 0 };
 
-    ret = send_message(p_dev, tx_accel_conf_2, rx_accel_conf_2);
+    ret = send_message(p_dev, tx_gyro_conf, rx_gyro_conf);
     if (ret == ESP_OK) {
-        ESP_LOGE(TAG, "PWR_MGMT_1 changed, read 0x%02X", rx_accel_conf_2[1]);
-    } */
+        ESP_LOGE(TAG, "GYRO_CONFIG modified succesfully, now low pass filter is activated");
+    }
+
+    vTaskDelay(pdMS_TO_TICKS(500)); //Espera al modificar características de los sensores
+
+    // Devolver a banco 0 para las lecturas de datos
+    uint8_t tx_bank_sel_2[2] = { (uint8_t) (WRITE_OP | REG_BANK_SEL), 0x00 };
+    uint8_t rx_bank_sel_2[2] = { 0, 0 };
+
+    ret = send_message(p_dev, tx_bank_sel_2, rx_bank_sel_2);
 
     return ESP_OK;
 }
@@ -161,33 +170,41 @@ esp_err_t icm20948_get_measurements(data_t *p_dev) {
     int16_t gyro_x_raw, gyro_y_raw, gyro_z_raw;
     float gyro_x, gyro_y, gyro_z;
 
+    // Variables de compensación (para la icm de Vladik)
+    float ax_offset = 1.622;
+    float ay_offset = 0.288;
+    float az_offset = -8.682;
+    float gx_offset = -0.262;
+    float gy_offset = -2.372;
+    float gz_offset = 0.014;
+
     // Accel: X
     accel_x_raw = get_raw_axis_data(p_dev, REG_ACCEL_X_H, REG_ACCEL_X_L);
-    accel_x = 2.03f + ((float)accel_x_raw / 16384.0f) * 9.80665f;
+    accel_x = (((float)accel_x_raw / 16384.0f) * 9.80665f) + ax_offset;
 
     // Accel: Y
     accel_y_raw = get_raw_axis_data(p_dev, REG_ACCEL_Y_H, REG_ACCEL_Y_L);
-    accel_y = 2.03f + ((float)accel_y_raw / 16384.0f) * 9.80665f;
+    accel_y = (((float)accel_y_raw / 16384.0f) * 9.80665f) + ay_offset;
 
     // Accel: Z
     accel_z_raw = get_raw_axis_data(p_dev, REG_ACCEL_Z_H, REG_ACCEL_Z_L);
-    accel_z = 2.03f + ((float)accel_z_raw / 16384.0f) * 9.80665f;
+    accel_z = (((float)accel_z_raw / 16384.0f) * 9.80665f) + az_offset;
 
     // Gyro: X
     gyro_x_raw = get_raw_axis_data(p_dev, REG_GYRO_X_H, REG_GYRO_X_L);
-    gyro_x = ((float)gyro_x_raw / 131.0f);  // para ±250 dps
+    gyro_x = ((float)gyro_x_raw / 131.0f) + gx_offset;
 
     // Gyro: Y
     gyro_y_raw = get_raw_axis_data(p_dev, REG_GYRO_Y_H, REG_GYRO_Y_L);
-    gyro_y = ((float)gyro_y_raw / 131.0f);
+    gyro_y = ((float)gyro_y_raw / 131.0f) + gy_offset;
 
     // Gyro: Z
     gyro_z_raw = get_raw_axis_data(p_dev, REG_GYRO_Z_H, REG_GYRO_Z_L);
-    gyro_z = ((float)gyro_z_raw / 131.0f);
+    gyro_z = ((float)gyro_z_raw / 131.0f) + gz_offset;
 
-    // ---------- Logs ----------
-    ESP_LOGI(TAG, "Accel (m/s²) - X: %.2f, Y: %.2f, Z: %.2f", accel_x, accel_y, accel_z);
-    ESP_LOGI(TAG, "Gyro  (°/s)  - X: %.2f, Y: %.2f, Z: %.2f", gyro_x, gyro_y, gyro_z);
+    // Logs
+    ESP_LOGI(TAG, "Accel g    - X: %.2f, Y: %.2f, Z: %.2f", accel_x, accel_y, accel_z);
+    ESP_LOGI(TAG, "Gyro dps   - X: %.2f, Y: %.2f, Z: %.2f", gyro_x, gyro_y, gyro_z);
 
     return ret;
 }

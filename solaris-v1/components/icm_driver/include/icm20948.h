@@ -15,7 +15,9 @@
 #define REG_PWR_MGMT_1     0x06
 #define REG_WHO_AM_I       0x00
 #define REG_LP_CONFIG      0x05
-#define REG_BANK_SEL_0     0x7F
+#define REG_BANK_SEL       0x7F
+#define REG_ACCEL_CONFIG   0X14 // En banco 2
+#define REG_GYRO_CONFIG    0x01 // En banco 2
 
 // Registros del acelerómetro
 #define REG_ACCEL_X_H     0x2D
@@ -37,6 +39,8 @@
 // Mensajes a enviar
 #define BIT_H_RESET        0x80
 #define I2C_DEAC           0x00
+#define ACCEL_FILTER_SELEC 0x31 // Pone el rango al mínimo y el filtro al máximo (modificable)
+#define GYRO_FILTER_SELEC  0x31 // modificable igualmente
 #define EMPTY_MESSAGE      0x00
 
 
