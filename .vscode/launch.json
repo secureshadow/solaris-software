@@ -1,0 +1,22 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "ESP32-S3 Debug",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/solaris-v1/build/solaris-v1.elf",
+      "cwd": "${workspaceFolder}/solaris-v1",
+      "MIMode": "gdb",
+      "miDebuggerPath": "/opt/esp/tools/xtensa-esp-elf-gdb/16.2_20250324/xtensa-esp-elf-gdb/bin/xtensa-esp32s3-elf-gdb",
+      "setupCommands": [
+        { "text": "target remote :3333" },
+        { "text": "monitor reset halt" },
+        { "text": "flushregs" },
+        { "text": "thb app_main" }      // opcional: parar en app_main al iniciar
+      ],
+      "preLaunchTask": "openocd-esp32s3",
+      "externalConsole": false
+    }
+  ]
+}
