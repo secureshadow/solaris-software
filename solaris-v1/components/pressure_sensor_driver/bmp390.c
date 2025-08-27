@@ -6,7 +6,20 @@
 #include <string.h>
 #include <math.h>
 
+static esp_err_t ret;
 static const char* TAG = "BMP390";
+uint8_t id, ifc;
+bmp390_temp_calib_t raw_calib;
+bmp390_temp_params_t temp_params;
+uint32_t raw_temp;
+bmp390_press_calib_t raw_press_calib;
+bmp390_press_params_t press_params;
+uint32_t raw_press;
+float t_lin;
+uint8_t st;
+float partial_data1, partial_data2, partial_data3, partial_data4;
+float partial_out1, partial_out2;
+float comp_press;
 
 //--------------------INIT (8 dummy bits and halfduplex)---------------------------
 
