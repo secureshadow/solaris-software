@@ -1,0 +1,25 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "openocd-esp32s3",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-lc",
+        "source /opt/esp/idf/export.sh && openocd -f board/esp32s3-builtin.cfg"
+      ],
+      "isBackground": true,
+      "problemMatcher": [
+        {
+          "pattern": [{ "regexp": ".*" }],
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": "Info\\ :\\ clock speed",
+            "endsPattern": "Info\\ :\\ Listening on port 3333 for gdb connections"
+          }
+        }
+      ]
+    }
+  ]
+}
