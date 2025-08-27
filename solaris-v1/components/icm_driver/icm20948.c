@@ -3,6 +3,7 @@
 #include "driver/spi_common.h"
 
 static const char* TAG = "ICM20948"; 
+static esp_err_t ret;
 
 esp_err_t send_message(data_t *p_dev, uint8_t tx[2], uint8_t rx[2]) {
     // Ajuste de parámetros de transacción

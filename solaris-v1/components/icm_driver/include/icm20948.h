@@ -4,9 +4,7 @@
 #include "driver/spi_master.h"
 #include "esp_err.h"
 #include "esp_log.h"
-#include "macros.h"
-
-esp_err_t ret = ESP_OK;
+#include "general.h"
 
 #define PIN_NUM_CS         21 
 

@@ -136,20 +136,6 @@ esp_err_t bmp390_read_raw_press(data_t *p_dev, uint32_t *raw_press);
 
 float bmp390_compensate_pressure(uint32_t raw_press, float t_lin, bmp390_press_params_t *params);
 
-esp_err_t ret;
-uint8_t id, ifc;
-bmp390_temp_calib_t raw_calib;
-bmp390_temp_params_t temp_params;
-uint32_t raw_temp;
-bmp390_press_calib_t raw_press_calib;
-bmp390_press_params_t press_params;
-uint32_t raw_press;
-float t_lin;
-uint8_t st;
-float partial_data1, partial_data2, partial_data3, partial_data4;
-float partial_out1, partial_out2;
-float comp_press;
-
 //-----------Aux Functions-----------
 void bmp390_config(data_t *p_dev);
 
