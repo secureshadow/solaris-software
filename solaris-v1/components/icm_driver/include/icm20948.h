@@ -47,7 +47,8 @@
 
 esp_err_t icm20948_init(data_t *p_dev);
 esp_err_t icm20948_config(data_t *p_dev);
-esp_err_t icm20948_get_measurements(data_t *p_dev);
+esp_err_t icm20948_prepare_read(data_t *p_dev);
+esp_err_t icm20948_read_measurements(data_t *p_dev);
 
 esp_err_t icm20948_send_message(data_t *p_dev, uint8_t tx[2], uint8_t rx[2]);
 

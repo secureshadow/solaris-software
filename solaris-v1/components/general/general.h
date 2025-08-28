@@ -12,6 +12,8 @@ esp_err_t init_common_sensors(data_t *icm, data_t *baro);
 // Despertart sensores, cambios de modo...
 esp_err_t configure_common_sensors(data_t *icm, data_t *baro);
 
+esp_err_t calibrate_common_sensors(data_t *icm, data_t *baro);
+
 // Lee y muestra las mediciones del barómetro.
 // Se recibe el puntero al struct del barómetro.
 void read_common_sensors(data_t *icm, data_t *baro);

@@ -137,16 +137,16 @@ esp_err_t bmp390_read_raw_press(data_t *p_dev, uint32_t *raw_press);
 float bmp390_compensate_pressure(uint32_t raw_press, float t_lin, bmp390_press_params_t *params);
 
 //-----------Aux Functions-----------
-void bmp390_config(data_t *p_dev);
+esp_err_t bmp390_config(data_t *p_dev);
 
 void bmp390_prepare_mode(data_t *p_dev);
 void bmp390_prepare_temp(data_t *p_dev);
 void bmp390_prepare_press(data_t *p_dev);
-void bmp390_prepare_read(data_t *p_dev);
+esp_err_t bmp390_prepare_read(data_t *p_dev);
 
 esp_err_t bmp390_read_temp(data_t *p_dev);
 esp_err_t bmp390_calc_altitude(data_t *p_dev);
-void bmp390_read_measurements(data_t *p_dev);
+esp_err_t bmp390_read_measurements(data_t *p_dev);
 
 
 #endif  // BMP390_H
