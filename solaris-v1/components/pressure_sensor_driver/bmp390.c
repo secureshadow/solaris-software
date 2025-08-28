@@ -383,7 +383,7 @@ float bmp390_compensate_pressure(uint32_t raw_press, float t_lin, bmp390_press_p
 
 //--------------------AUX FUNCTIONS (GENERAL)---------------------------
 
-void bmp390_config(data_t *p_dev)
+esp_err_t bmp390_config(data_t *p_dev)
 {
     ret = bmp390_soft_reset(p_dev);
 
@@ -395,6 +395,7 @@ void bmp390_config(data_t *p_dev)
 
     ret = bmp390_read_if_conf(p_dev, &ifc);
 
+    return ESP_OK;
 }//End BMP config
 
 void bmp390_prepare_mode(data_t *p_dev)
@@ -459,13 +460,15 @@ void bmp390_prepare_press(data_t *p_dev)
 
 }//End prepare press
 
-void bmp390_prepare_read(data_t *p_dev)
+esp_err_t bmp390_prepare_read(data_t *p_dev)
 {
     bmp390_prepare_mode(p_dev); 
 
     bmp390_prepare_temp(p_dev); 
 
     bmp390_prepare_press(p_dev);
+
+    return ESP_OK;
 }
 
 
@@ -505,7 +508,7 @@ esp_err_t bmp390_calc_altitude(data_t *p_dev)
 }//End calc altitude
 
 
-void bmp390_read_measurements(data_t *p_dev)
+esp_err_t bmp390_read_measurements(data_t *p_dev)
 {
     ret = bmp390_read_temp(p_dev); //Temp
     if (ret != ESP_OK) 
@@ -519,4 +522,6 @@ void bmp390_read_measurements(data_t *p_dev)
     {
         ESP_LOGE(TAG, "Error calc altitude BMP390: %d", ret);  
     }
+
+    return ESP_OK;
 }//End BMP read

@@ -124,6 +124,10 @@ esp_err_t icm20948_config(data_t *p_dev) {
         ESP_LOGE(TAG, "PWR_MGMT_1 changed, read 0x%02X | should be: 0x01", rx_sleep_off[1]);
     }
 
+    return ESP_OK;
+}
+
+esp_err_t icm20948_prepare_read(data_t *p_dev) {
 
     // Cambiar a banco 2 de registros
     uint8_t tx_bank_sel[2] = { (uint8_t) (WRITE_OP | REG_BANK_SEL), 0x20 };
@@ -160,7 +164,7 @@ esp_err_t icm20948_config(data_t *p_dev) {
     return ESP_OK;
 }
 
-esp_err_t icm20948_get_measurements(data_t *p_dev) {
+esp_err_t icm20948_read_measurements(data_t *p_dev) {
     // Inicialización de variables
     int16_t accel_x_raw, accel_y_raw, accel_z_raw;
     float accel_x, accel_y, accel_z;
@@ -203,5 +207,5 @@ esp_err_t icm20948_get_measurements(data_t *p_dev) {
     ESP_LOGI(TAG, "Accel g    - X: %.2f, Y: %.2f, Z: %.2f", accel_x, accel_y, accel_z);
     ESP_LOGI(TAG, "Gyro dps   - X: %.2f, Y: %.2f, Z: %.2f", gyro_x, gyro_y, gyro_z);
 
-    return ret;
+    return ESP_OK;
 }

@@ -29,7 +29,13 @@ int app_main(void)
         return ESP_FAIL;
     }
 
-    // Calibración del bmp: PENDIENTE !! (cuarta función principal para no sobrecargar configure_common_sensors)
+    // Calibración de los sensores para recogida de datos
+    esp_err_t calib_result = calibrate_common_sensors(&icm_dev, &baro_dev);
+    if (calib_result != ESP_OK) {
+        ESP_LOGE(TAG, "Failed on sensors calibration");
+        return ESP_FAIL;
+    }
+
 
     // Lectura periódica de los datos en los sensores
     while (1) {
