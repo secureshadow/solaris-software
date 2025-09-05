@@ -1,1 +1,5 @@
 ESP-IDF: https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/peripherals/gpio.html
+
+ESP-IDF:
+esp_err_t gpio_install_isr_service(int intr_alloc_flags): parameter intr_alloc_flags -- Flags used to allocate the interrupt. One or multiple (ORred) ESP_INTR_FLAG_* values. See esp_intr_alloc.h for more info: https://github.com/espressif/esp-idf/blob/v5.5.1/components/esp_hw_support/include/esp_intr_alloc.h
+

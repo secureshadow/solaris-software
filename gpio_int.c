@@ -2,8 +2,9 @@
 #include "esp_log.h"
 
 static const char *TAG = "GPIO_INT";
+static bool s_int_flag = false;
 
-//Configuración del pin INT ()
+//Configuración del pin INT
 esp_err_t int_gpio_init(void)
 {
     esp_err_t ret = ESP_OK;
@@ -35,4 +36,26 @@ esp_err_t int_gpio_init(void)
     return ret;
 }
 
-//Siguiente paso: ISR (desde o IDF, sin RTOS de momento)
+//ISR handler
+isr_handler(void *arg)
+{
+    (int)arg;              // opcional, se non me equivoco, esto debería rellenarse co pin GPIO
+    s_int_flag = true;    // interrupción
+}
+
+//ISR (desde o IDF, sin RTOS)
+esp_err_t isr_config(void)
+{
+    esp_err_t ret = ESP_OK;
+
+    if (ret == ESP_ERR_INVALID_STATE) ret = ESP_OK;   // pode dar "error" se xa estaba instalada, tratamolo como ok
+    if (ret != ESP_OK) return ret;
+    
+    //Install the GPIO driver's ETS_GPIO_INTR_SOURCE ISR handler service, which allows per-pin GPIO interrupt handlers.
+    ret = gpio_install_isr_service(FLAG);
+
+    //Add ISR handler for the corresponding GPIO pin.
+    ret = gpio_isr_handler_add(INT_GPIO, isr_handler, (void*)INT_GPIO);
+
+    return ret;
+}
