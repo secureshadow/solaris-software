@@ -7,5 +7,5 @@ settings.json
 /solaris-v1/sdkconfig
 
 
-/build/*
+/solaris-v0.1/build/*
 !/build/merged-bin.bin
