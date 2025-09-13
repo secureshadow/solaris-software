@@ -37,14 +37,14 @@ int app_main(void)
         // return ESP_FAIL;
     }
 
-    int_gpio_init();
-    isr_config();
+    // int_gpio_init();
+    // isr_config();
 
 
     // Lectura periódica de los datos en los sensores
     while (1) {
-    //     read_common_sensors(&icm_dev, &baro_dev);
-    //     vTaskDelay(pdMS_TO_TICKS(2000));
+         read_common_sensors(&icm_dev, &baro_dev);
+         vTaskDelay(pdMS_TO_TICKS(2000));
     }
     return ESP_OK;
 }
