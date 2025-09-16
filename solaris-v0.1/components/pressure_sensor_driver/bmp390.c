@@ -31,13 +31,13 @@ esp_err_t bmp390_init(spi_device_handle_t *handle)
     }
 
     spi_device_interface_config_t devcfg = {
-        .clock_speed_hz = 500 * 1000,  // 500 kHz
-        .mode = 0,                   // SPI modo 0: CPOL=0, CPHA=0
-        .spics_io_num = PIN_NUM_CS,
-        .queue_size = 7,
-        .command_bits = 8,           // 8 bits para la instrucción (registro con bit de lectura)
-        .dummy_bits = 8,             // 8 bits dummy para leer la respuesta
-        .flags          = SPI_DEVICE_HALFDUPLEX
+        .clock_speed_hz = 500 * 1000,               //SPI clock frequency: 500 kHz
+        .mode = 0,                                  //SPI mode 0 (CPOL = 0, CPHA = 0)
+        .spics_io_num = PIN_NUM_CS,                 //Chip Select (CS) GPIO pin 
+        .queue_size = 7,                            //Transaction queue depth (max pending transactions)
+        .command_bits = 8,                          //Number of bits used for command phase (register + R/W bit)
+        .dummy_bits = 8,                            //Number of dummy cycles (needed for read operations)
+        .flags          = SPI_DEVICE_HALFDUPLEX     //Configure device in half-duplex mode
     };
 
     ret = spi_bus_add_device(SPI3_HOST, &devcfg, handle);
@@ -66,7 +66,7 @@ esp_err_t bmp390_write_reg(spi_device_handle_t handle, uint8_t reg, uint8_t valu
 {
     uint8_t tx_data[2] = { (reg & 0x7F), value };
     spi_transaction_t t = { 0 };
-    t.length    = 16;          // 16 bits (8 bits direction + 8 bits value)
+    t.length    = 16;          //16 bits (8 bits direction + 8 bits value)
     t.tx_buffer = tx_data;
 
     return spi_device_transmit(handle, &t); //Transaction (choose polling or transmit)
@@ -153,7 +153,7 @@ esp_err_t bmp390_wait_temp_ready(spi_device_handle_t handle)
 {
     uint8_t st = 0;
     esp_err_t ret;
-    // Read STATUS until bit DRDY_TEMP (0x40) = 1
+    //Read STATUS until bit DRDY_TEMP (0x40) = 1
     do {
         ret = bmp390_read_status(handle, &st);
         if (ret != ESP_OK) {
@@ -168,7 +168,7 @@ esp_err_t bmp390_wait_press_ready(spi_device_handle_t handle)
 {
     uint8_t st;
     esp_err_t ret;
-    // Read STATUS until bit DRDY_PRESS (0x40) = 1
+    //Read STATUS until bit DRDY_PRESS (0x40) = 1
     do {
         ret = bmp390_read_status(handle, &st);
         if (ret != ESP_OK) return ret;
@@ -179,7 +179,7 @@ esp_err_t bmp390_wait_press_ready(spi_device_handle_t handle)
 //-----------------------------READ TEMP-----------------------------
 esp_err_t bmp390_read_raw_temp_coeffs(spi_device_handle_t handle, bmp390_temp_calib_t *tcalib)
 {
-    uint8_t raw[5];  // 5 bytes: 0x31..0x35
+    uint8_t raw[5];  //5 bytes: 0x31..0x35
     esp_err_t ret;
     //Read 5 bytes of coefficients in a burst
     ret = bmp390_read(handle, BMP390_TEMP_CALIB_REG_START, raw, sizeof(raw));
@@ -337,4 +337,4 @@ float bmp390_compensate_pressure(uint32_t raw_press, float t_lin, bmp390_press_p
     return comp_press;
 }
 
-// BMP390_C
+//BMP390_C

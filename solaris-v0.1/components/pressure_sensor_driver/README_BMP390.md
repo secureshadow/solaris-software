@@ -1,6 +1,7 @@
 # BMP390 Barometer — C Driver (ESP-IDF, ESP32-S3, SPI 4-Wire)
 
 Robust C driver for the Bosch **BMP390** barometer using **SPI 4-wire** on **ESP-IDF** (target: **ESP32-S3**). The library focuses solely on the barometer implementation (no shared “General” folder), so naming and some blocks can differ from the multi-sensor “fusion” branch; functionality is equivalent.
+Link to the **ESP-IDF**: https://docs.espressif.com/projects/esp-idf/en/stable/esp32/index.html
 
 ---
 
