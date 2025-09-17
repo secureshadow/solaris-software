@@ -1,0 +1,11 @@
+idf_component_register(
+    SRCS
+        "hal/spi_esp32.c"
+    PRIV_INCLUDE_DIRS
+        "hal"
+    REQUIRES
+        wrapper_spp
+        driver
+        freertos
+        log
+)

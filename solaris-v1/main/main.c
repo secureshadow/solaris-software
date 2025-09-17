@@ -4,11 +4,16 @@
 #include "general.h"
 #include "macros.h"
 #include "gpio_int.h"
+#include "core.h"
 
+
+retval_t ret = SPP_OK;
 static const char *TAG = "MainApp";
 
 int app_main(void)
 {
+
+    ret = Core_Init();
     // Declarar e inicializar los structs de los sensores (inicializados a cero)
     data_t icm_dev = {0};
     data_t baro_dev = {0};
