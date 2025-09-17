@@ -2,51 +2,75 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "openocd-esp32s3",
+      "label": "ssh-tunnel-openocd-open",
       "type": "shell",
-      "command": "bash",
+      "command": "ssh",
       "args": [
-        "-lc",
-        "\"/opt/esp/tools/openocd-esp32/v0.12.0-esp32-20250707/openocd-esp32/bin/openocd            -f board/esp32s3-builtin.cfg            -c 'gdb_port 3333; tcl_port 6666; telnet_port 4444'\""
-      ],
-      "isBackground": true,
-      "problemMatcher": {
-        "base": "$gcc",
-        "background": {
-          "activeOnStart": true,
-          "beginsPattern": ".*",
-          "endsPattern": ".*Listening on port 3333 for gdb connections.*"
-        }
-      }
-    },
-    {
-      "label": "reset-halt-esp32s3",
-      "type": "shell",
-      "command": "bash",
-      "args": [
-        "-lc",
-        "(echo reset halt; echo exit) | telnet localhost 4444 >/dev/null 2>&1 || true"
+        "-o", "ControlMaster=auto",
+        "-o", "ControlPersist=600",
+        "-o", "ControlPath=/tmp/raspi-openocd-3333.ctl",
+        "-o", "ExitOnForwardFailure=yes",
+        "-o", "StrictHostKeyChecking=accept-new",
+        "-fN",
+        "-L", "127.0.0.1:3333:127.0.0.1:3333",
+        "-L", "127.0.0.1:4444:127.0.0.1:4444",
+        "-L", "127.0.0.1:6666:127.0.0.1:6666",
+        "raspi"
       ],
       "problemMatcher": []
     },
     {
-      "label": "prep-openocd-esp32s3",
+      "label": "ssh-tunnel-openocd-wait",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-lc",
+        "for i in $(seq 1 40); do (echo > /dev/tcp/127.0.0.1/3333) >/dev/null 2>&1 && exit 0; sleep 0.1; done; echo \"Tunnel not ready on 127.0.0.1:3333\" >&2; exit 1"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "ssh-tunnel-openocd-up",
       "dependsOn": [
-        "openocd-esp32s3",
-        "reset-halt-esp32s3"
+        "ssh-tunnel-openocd-open",
+        "ssh-tunnel-openocd-wait"
       ],
-      "dependsOrder": "sequence",
-      "problemMatcher": []
+      "dependsOrder": "sequence"
     },
     {
-      "label": "stop-openocd",
+      "label": "ssh-tunnel-openocd-down",
       "type": "shell",
+      "command": "ssh",
+      "args": [
+        "-O", "exit",
+        "-o", "ControlPath=/tmp/raspi-openocd-3333.ctl",
+        "raspi"
+      ],
+      "problemMatcher": []
+    },
+
+    {
+      "label": "ESP: Flash (remote esptool)",
+      "type": "shell",
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
       "command": "bash",
       "args": [
         "-lc",
-        "\"(echo shutdown | nc -w 1 localhost 4444) >/dev/null 2>&1 ||            (echo shutdown | telnet localhost 4444 >/dev/null 2>&1 || true);            pkill -f 'openocd-esp32' >/dev/null 2>&1 || true\""
+        "set -e; BIN=$(ls ${workspaceFolder}/solaris-v1/build/merged-*.bin | head -n1); scp \"$BIN\" raspi:/tmp/merged.bin; ssh raspi \"python3 -m esptool --chip esp32s3 --port /dev/ttyACM0 --baud 460800 --before default_reset --after hard_reset write_flash 0x0 /tmp/merged.bin\""
       ],
       "problemMatcher": []
+    },
+
+    {
+      "label": "prep-remote-flash-and-tunnel",
+      "dependsOn": [
+        "ESP: Flash (remote esptool)",
+        "ssh-tunnel-openocd-up"
+      ],
+      "dependsOrder": "sequence"
     }
   ]
 }
