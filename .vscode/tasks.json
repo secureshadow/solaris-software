@@ -49,6 +49,7 @@
       "problemMatcher": []
     },
 
+
     {
       "label": "ESP: Flash (remote esptool)",
       "type": "shell",
@@ -59,6 +60,7 @@
       "command": "bash",
       "args": [
         "-lc",
+        "set -e; BIN=$(ls ${workspaceFolder}/solaris-v1/build/merged-*.bin | head -n1); scp \"$BIN\" raspi:/tmp/merged.bin; ssh raspi \"python3 -m esptool --chip esp32s3 --port /dev/ttyACM0 --baud 460800 --before default_reset --after hard_reset write_flash 0x0 /tmp/merged.bin\""
         "set -e; BIN=$(ls ${workspaceFolder}/solaris-v1/build/merged-*.bin | head -n1); scp \"$BIN\" raspi:/tmp/merged.bin; ssh raspi \"python3 -m esptool --chip esp32s3 --port /dev/ttyACM0 --baud 460800 --before default_reset --after hard_reset write_flash 0x0 /tmp/merged.bin\""
       ],
       "problemMatcher": []
