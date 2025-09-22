@@ -1,0 +1,78 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "ssh-tunnel-openocd-open",
+      "type": "shell",
+      "command": "ssh",
+      "args": [
+        "-o", "ControlMaster=auto",
+        "-o", "ControlPersist=600",
+        "-o", "ControlPath=/tmp/raspi-openocd-3333.ctl",
+        "-o", "ExitOnForwardFailure=yes",
+        "-o", "StrictHostKeyChecking=accept-new",
+        "-fN",
+        "-L", "127.0.0.1:3333:127.0.0.1:3333",
+        "-L", "127.0.0.1:4444:127.0.0.1:4444",
+        "-L", "127.0.0.1:6666:127.0.0.1:6666",
+        "raspi"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "ssh-tunnel-openocd-wait",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-lc",
+        "for i in $(seq 1 40); do (echo > /dev/tcp/127.0.0.1/3333) >/dev/null 2>&1 && exit 0; sleep 0.1; done; echo \"Tunnel not ready on 127.0.0.1:3333\" >&2; exit 1"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "ssh-tunnel-openocd-up",
+      "dependsOn": [
+        "ssh-tunnel-openocd-open",
+        "ssh-tunnel-openocd-wait"
+      ],
+      "dependsOrder": "sequence"
+    },
+    {
+      "label": "ssh-tunnel-openocd-down",
+      "type": "shell",
+      "command": "ssh",
+      "args": [
+        "-O", "exit",
+        "-o", "ControlPath=/tmp/raspi-openocd-3333.ctl",
+        "raspi"
+      ],
+      "problemMatcher": []
+    },
+
+
+    {
+      "label": "ESP: Flash (remote esptool)",
+      "type": "shell",
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "command": "bash",
+      "args": [
+        "-lc",
+        "set -e; BIN=$(ls ${workspaceFolder}/solaris-v1/build/merged-*.bin | head -n1); scp \"$BIN\" raspi:/tmp/merged.bin; ssh raspi \"python3 -m esptool --chip esp32s3 --port /dev/ttyACM0 --baud 460800 --before default_reset --after hard_reset write_flash 0x0 /tmp/merged.bin\""
+        "set -e; BIN=$(ls ${workspaceFolder}/solaris-v1/build/merged-*.bin | head -n1); scp \"$BIN\" raspi:/tmp/merged.bin; ssh raspi \"python3 -m esptool --chip esp32s3 --port /dev/ttyACM0 --baud 460800 --before default_reset --after hard_reset write_flash 0x0 /tmp/merged.bin\""
+      ],
+      "problemMatcher": []
+    },
+
+    {
+      "label": "prep-remote-flash-and-tunnel",
+      "dependsOn": [
+        "ESP: Flash (remote esptool)",
+        "ssh-tunnel-openocd-up"
+      ],
+      "dependsOrder": "sequence"
+    }
+  ]
+}
