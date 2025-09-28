@@ -141,7 +141,7 @@ void app_main(void)
         ESP_LOGI(TAG, "Calibrated PAR_P10 : %.6f", press_params.PAR_P10);
         ESP_LOGI(TAG, "Calibrated PAR_P11 : %.6f", press_params.PAR_P11);
     } else {
-         ESP_LOGE(TAG, "Error al calibrar params press: %d", ret);
+         ESP_LOGE(TAG, "Error calibrating press params: %d", ret);
     }
 
     //---------READ LOOP---------
@@ -157,10 +157,10 @@ void app_main(void)
             ESP_LOGI(TAG, "Raw temp: %u", raw_temp);
 
             float comp_temp = bmp390_compensate_temperature(raw_temp, &temp_params);
-            ESP_LOGI(TAG, "Temp compensada: %.2f °C", comp_temp);
+            ESP_LOGI(TAG, "Compensated Temp: %.2f °C", comp_temp);
 
         } else {
-            ESP_LOGE(TAG, "Error read raw temp: %d", ret);
+            ESP_LOGE(TAG, "Error readng raw temp: %d", ret);
             break;
         }
 
@@ -176,12 +176,12 @@ void app_main(void)
 
             t_lin = bmp390_compensate_temperature(raw_temp, &temp_params);
             float p_pa = bmp390_compensate_pressure(raw_press, t_lin, &press_params);
-            ESP_LOGI(TAG, "Presión comp.: %.2f Pa", p_pa);
+            ESP_LOGI(TAG, "Compensated press: %.2f Pa", p_pa);
             float altitude = 44330.0f * (1.0f - powf(p_pa/101325.0f, 1.0f/5.255f));
-            ESP_LOGI(TAG, "Altura: %.2f m", altitude);
+            ESP_LOGI(TAG, "Height: %.2f m", altitude);
 
         }else {
-            ESP_LOGE(TAG, "Error read raw press: %d", ret);
+            ESP_LOGE(TAG, "Error reading raw press: %d", ret);
             break;
         }
 

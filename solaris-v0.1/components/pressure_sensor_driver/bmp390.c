@@ -26,7 +26,7 @@ esp_err_t bmp390_init(spi_device_handle_t *handle)
 
     esp_err_t ret = spi_bus_initialize(SPI3_HOST, &buscfg, SPI_DMA_CH_AUTO);
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Error al inicializar el bus SPI: %d", ret);
+        ESP_LOGE(TAG, "Error initialazing SPI bus: %d", ret);
         return ret;
     }
 
@@ -42,11 +42,11 @@ esp_err_t bmp390_init(spi_device_handle_t *handle)
 
     ret = spi_bus_add_device(SPI3_HOST, &devcfg, handle);
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Error al añadir el dispositivo SPI: %d", ret);
+        ESP_LOGE(TAG, "Error adding the SPI device: %d", ret);
         return ret;
     }
 
-    ESP_LOGI(TAG, "SPI inicializado correctamente");
+    ESP_LOGI(TAG, "Correct SPI init");
     return ESP_OK;
 }
 
@@ -77,10 +77,10 @@ esp_err_t bmp390_soft_reset(spi_device_handle_t handle)
 {
     esp_err_t ret = bmp390_write_reg(handle, BMP390_SOFT_RESET_REG, BMP390_SOFT_RESET_CMD);
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Error al enviar soft reset: %d", ret);
+        ESP_LOGE(TAG, "Error sending soft reset: %d", ret);
         return ret;
     }
-    ESP_LOGI(TAG, "Soft reset enviado, esperando 100 ms");
+    ESP_LOGI(TAG, "Soft reset sent, wainting 100 ms");
     vTaskDelay(100 / portTICK_PERIOD_MS);
     return ESP_OK;
 }
@@ -89,10 +89,10 @@ esp_err_t bmp390_enable_spi_mode(spi_device_handle_t handle)
 {
     esp_err_t ret = bmp390_write_reg(handle, BMP390_IF_CONF_REG, BMP390_IF_CONF_SPI);
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Error al habilitar modo SPI: %d", ret);
+        ESP_LOGE(TAG, "Error enabling modo SPI: %d", ret);
         return ret;
     }
-    ESP_LOGI(TAG, "Modo SPI activado correctamente (IF_CONF=0x%02X)", BMP390_IF_CONF_SPI);
+    ESP_LOGI(TAG, "SPI mode enabled (IF_CONF=0x%02X)", BMP390_IF_CONF_SPI);
     return ESP_OK;
 }
 
@@ -100,9 +100,9 @@ esp_err_t bmp390_read_if_conf(spi_device_handle_t handle, uint8_t *if_conf)
 {
     esp_err_t ret = bmp390_read(handle, BMP390_IF_CONF_REG, if_conf, 1);
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Error al leer IF_CONF: %d", ret);
+        ESP_LOGE(TAG, "Error reading IF_CONF: %d", ret);
     } else {
-        ESP_LOGI(TAG, "IF_CONF leído: 0x%02X", *if_conf);
+        ESP_LOGI(TAG, "IF_CONF read: 0x%02X", *if_conf);
     }
     return ret;
 }
@@ -111,9 +111,9 @@ esp_err_t bmp390_read_chip_id(spi_device_handle_t handle, uint8_t *chip_id)
 {
     esp_err_t ret = bmp390_read(handle, BMP390_CHIP_ID_REG, chip_id, 1);
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Error al leer CHIP ID: %d", ret);
+        ESP_LOGE(TAG, "Error reading CHIP ID: %d", ret);
     } else {
-        ESP_LOGI(TAG, "CHIP ID leído: 0x%02X", *chip_id);
+        ESP_LOGI(TAG, "CHIP ID read: 0x%02X", *chip_id);
     }
     return ret;
 }
@@ -221,7 +221,7 @@ esp_err_t bmp390_read_raw_temp(spi_device_handle_t handle, uint32_t *raw_temp)
     //Read 3 bytes of raw temp in a burst (regs 0x07..0x09)
     ret = bmp390_read(handle, BMP390_TEMP_RAW_REG, buf, sizeof(buf));
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Error al leer raw_temp: %d", ret);
+        ESP_LOGE(TAG, "Error reading raw_temp: %d", ret);
         return ret;
     }
     //Combine XLSB, LSB and MSB
@@ -301,7 +301,7 @@ esp_err_t bmp390_read_raw_press(spi_device_handle_t handle, uint32_t *raw_press)
     //Read 3 bytes of raw temp in a burst (regs 0x04..0x06)
     ret = bmp390_read(handle, BMP390_PRESS_RAW_REG, buf, sizeof(buf));
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Error al leer raw_press: %d", ret);
+        ESP_LOGE(TAG, "Error reading raw_press: %d", ret);
         return ret;
     }
     //Combine XLSB, LSB and MSB
