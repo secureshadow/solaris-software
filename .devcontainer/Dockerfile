@@ -1,5 +1,5 @@
 # Use the base image for ESP-IDF development
-FROM espressif/idf:v6.0-dev
+FROM espressif/idf-rust:esp32s3_latest
 
 # Install necessary packages
 USER root
@@ -39,13 +39,19 @@ RUN chmod +x /root/setup-terminal.sh
 RUN echo "source /etc/bash_completion.d/git-completion.bash" >> /root/.bashrc \
     && echo "source /root/setup-terminal.sh" >> /root/.bashrc
 
-# Set locale to a UTF-8 compatible setting
-RUN apt-get update && apt-get install -y locales && \
-    locale-gen en_US.UTF-8 && \
-    update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
-ENV LANG en_US.UTF-8
-ENV LC_ALL en_US.UTF-8
+# Instalar rustup + herramientas esp-rs
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
+    && /root/.cargo/bin/cargo install espup \
+    && /root/.cargo/bin/cargo install cargo-generate \
+    && /root/.cargo/bin/cargo install espflash \
+    && /root/.cargo/bin/cargo install ldproxy \
+    && /root/.cargo/bin/cargo install espmonitor
+
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+
 
 # Ensure the final user is root
 USER root

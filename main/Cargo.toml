@@ -1,0 +1,9 @@
+[package]
+name = "main"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+icm20948 = { path = "../icm20948" }
+embedded-hal = "1.0.0-rc.1"
+

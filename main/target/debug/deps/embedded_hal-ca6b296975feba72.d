@@ -1,0 +1,13 @@
+/workspaces/software-solaris/main/target/debug/deps/embedded_hal-ca6b296975feba72.d: /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-hal-1.0.0/src/lib.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-hal-1.0.0/src/delay.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-hal-1.0.0/src/digital.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-hal-1.0.0/src/i2c.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-hal-1.0.0/src/pwm.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-hal-1.0.0/src/spi.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-hal-1.0.0/src/../README.md /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-hal-1.0.0/src/i2c-shared-bus.svg /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-hal-1.0.0/src/spi-shared-bus.svg
+
+/workspaces/software-solaris/main/target/debug/deps/libembedded_hal-ca6b296975feba72.rmeta: /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-hal-1.0.0/src/lib.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-hal-1.0.0/src/delay.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-hal-1.0.0/src/digital.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-hal-1.0.0/src/i2c.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-hal-1.0.0/src/pwm.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-hal-1.0.0/src/spi.rs /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-hal-1.0.0/src/../README.md /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-hal-1.0.0/src/i2c-shared-bus.svg /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-hal-1.0.0/src/spi-shared-bus.svg
+
+/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-hal-1.0.0/src/lib.rs:
+/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-hal-1.0.0/src/delay.rs:
+/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-hal-1.0.0/src/digital.rs:
+/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-hal-1.0.0/src/i2c.rs:
+/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-hal-1.0.0/src/pwm.rs:
+/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-hal-1.0.0/src/spi.rs:
+/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-hal-1.0.0/src/../README.md:
+/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-hal-1.0.0/src/i2c-shared-bus.svg:
+/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/embedded-hal-1.0.0/src/spi-shared-bus.svg:
