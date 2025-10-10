@@ -8,32 +8,49 @@
 
 use esp_hal::clock::CpuClock;
 use esp_hal::main;
-use esp_hal::time::{Duration, Instant};
-use rtt_target::rprintln;
+use esp_hal::time::{Rate};
+use esp_hal::spi::{
+    Mode,
+    master::{Config, Spi},
+};
+use esp_hal::delay::Delay;
 
 #[panic_handler]
 fn panic(_: &core::panic::PanicInfo) -> ! {
     loop {}
 }
 
-// This creates a default app-descriptor required by the esp-idf bootloader.
-// For more information see: <https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/system/app_image_format.html#application-description>
 esp_bootloader_esp_idf::esp_app_desc!();
 
 #[main]
 fn main() -> ! {
     // generator version: 0.5.0
 
-    rtt_target::rtt_init_print!();
-
     let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
-    let _peripherals = esp_hal::init(config);
+    let peripherals = esp_hal::init(config);
+    
+    let sck = peripherals.GPIO48;
+    let miso = peripherals.GPIO47;
+    let mosi = peripherals.GPIO38;
+    let cs_bmp = peripherals.GPIO18;
+
+    let mut _spi_bmp = Spi::new(
+        peripherals.SPI2,
+        Config::default()
+            .with_frequency(Rate::from_khz(100))
+            .with_mode(Mode::_0),
+        )
+        .unwrap()
+        .with_sck(sck)
+        .with_miso(miso)
+        .with_mosi(mosi)
+        .with_cs(cs_bmp);
+
+    let delay = Delay::new();
+    
 
     loop {
-        rprintln!("Hello world!");
-        let delay_start = Instant::now();
-        while delay_start.elapsed() < Duration::from_millis(500) {}
+        delay.delay_millis(250);
     }
 
-    // for inspiration have a look at the examples at https://github.com/esp-rs/esp-hal/tree/esp-hal-v1.0.0-rc.0/examples/src/bin
 }
