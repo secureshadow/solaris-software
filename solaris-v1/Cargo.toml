@@ -14,7 +14,7 @@ esp-hal                = { version = "=1.0.0-rc.0", features = ["esp32s3", "unst
 
 critical-section = "1.2.0"
 rtt-target       = "0.6.1"
-
+esp-println = { version = "0.15.0", features = ["esp32s3"] }
 
 [profile.dev]
 # Rust debug is too slow.

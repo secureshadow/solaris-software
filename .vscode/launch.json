@@ -1,0 +1,30 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "probe-rs-debug",
+            "request": "launch",
+            "name": "Launch (Remote ESP32-S3)",
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "build-debug",
+            "connect": {
+                "protocol": "dap",
+                "server": "tcp:192.168.10.202:1337"
+            },
+            "chip": "esp32s3",
+            "flashingConfig": {
+                "flashingEnabled": true,
+                "haltAfterReset": true,
+                "formatOptions": {
+                    "binaryFormat": "idf"
+                }
+            },
+            "coreConfigs": [
+                {
+                    "coreIndex": 0,
+                    "programBinary": "target/xtensa-esp32s3-none-elf/debug/${workspaceFolderBasename}"
+                }
+            ]
+        }
+    ]
+}
