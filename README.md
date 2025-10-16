@@ -1,5 +1,8 @@
 # Solaris Software Development
 
+# Guía de Instalación (Forgejo):
+[Guía de Instalación](https://softwaresolaris.com/solaris/solaris-software/wiki/Gu%C3%ADa-de-Instalaci%C3%B3n)
+
 # Guía de Instalación para Usuarios de Linux
 
 Esta guía te ayudará a instalar las herramientas necesarias, configurar claves SSH, y trabajar con un repositorio en GitLab dentro de un contenedor Dev en Visual Studio Code.
