@@ -10,5 +10,7 @@ We use Docker as a common base so that all our developers share the same depende
 
 We recommend reading our [installation guide for Linux users.](https://softwaresolaris.com/solaris/solaris-software/wiki/Installation-guide-for-Linux-users)
 
+We also have a [short general installation guide.](https://softwaresolaris.com/solaris/solaris-software/wiki/Gu%C3%ADa-de-Instalaci%C3%B3n)
+
 ## Collaboration
 We are open to you writing code in our repository, contributing your ideas or improvements — it is the only way to progress and be able to develop faster.
