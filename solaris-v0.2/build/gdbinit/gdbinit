@@ -1,0 +1,2 @@
+source /workspaces/solaris-software/solaris-v1/build/gdbinit/symbols
+source /workspaces/solaris-software/solaris-v1/build/gdbinit/connect
