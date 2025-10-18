@@ -5,10 +5,10 @@ This software is distributed under the terms of the GNU General Public License
 version 3 (GPLv3), published by the Free Software Foundation, with the additional
 conditions described at the end of this document.
 
-===============================================================================
+
 GNU GENERAL PUBLIC LICENSE
 Version 3, 29 June 2007
-===============================================================================
+
 
 Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
 Everyone is permitted to copy and distribute verbatim copies
@@ -23,9 +23,9 @@ software and other kinds of works.
 The complete and official English text can be obtained at:
 https://www.gnu.org/licenses/gpl-3.0-standalone.html
 
-===============================================================================
+
 ADDITIONAL TERMS — AMATEUR ROCKETRY LICENSE ADDENDUM
-===============================================================================
+
 
 1. Attribution:
    Any redistribution, copy, or derivative work must include a visible mention of:
@@ -64,7 +64,6 @@ ADDITIONAL TERMS — AMATEUR ROCKETRY LICENSE ADDENDUM
 7. Applicability:
    This license applies to all contents of this repository from its initial commit.
 
-===============================================================================
 END OF LICENSE
-===============================================================================
+
     
