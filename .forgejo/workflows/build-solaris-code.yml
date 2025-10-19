@@ -39,7 +39,7 @@ jobs:
       - name: Build firmware
         run: |
           set -e
-          cd solaris-v1
-          . /opt/esp/idf/export.sh     # <= equivalente a "source"
+          cd solaris-v0.2
+          . /opt/esp/idf/export.sh
           idf.py build
           idf.py merge-bin
