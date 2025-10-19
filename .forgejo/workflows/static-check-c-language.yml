@@ -1,0 +1,61 @@
+name: C Code Verification
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check-c:
+    runs-on: [self-hosted, raspi]
+
+    container:
+      image: debian:bookworm-slim
+      options: >-
+        --user root
+        -v /root/.ssh/forgejo-ci:/root/.ssh/id_ed25519:ro
+        --add-host=git.softwaresolaris.com:192.168.10.202
+
+    steps:
+      - name: Ensure git & SSH client
+        run: |
+          apt-get update && apt-get install -y git openssh-client build-essential cppcheck clang-format && rm -rf /var/lib/apt/lists/*
+
+      - name: Checkout repository (SSH + submodules)
+        run: |
+          set -e
+          mkdir -p ~/.ssh
+          ssh-keyscan -p 2222 git.softwaresolaris.com >> ~/.ssh/known_hosts
+
+          # Force SSH URL to use custom port
+          git config --global url."ssh://git@git.softwaresolaris.com:2222/".insteadOf "ssh://git@git.softwaresolaris.com/"
+
+          # Clone this repository
+          git clone ssh://git@git.softwaresolaris.com:2222/solaris/solaris-software.git .
+          git checkout ${{ github.sha }}
+
+          # Sync and update submodules
+          git submodule sync --recursive
+          git submodule update --init --recursive
+
+      - name: Compile all .c files
+        run: |
+          echo "Compiling all .c files..."
+          for f in $(find . -name '*.c'); do
+            echo "Compiling $f"
+            gcc -Wall -Wextra -Werror -c "$f"
+          done
+          echo "✅ Compilation successful"
+
+      - name: Static analysis with cppcheck
+        run: |
+          echo "Running cppcheck..."
+          cppcheck --enable=all --error-exitcode=1 --quiet .
+          echo "✅ cppcheck passed"
+
+      - name: Check code formatting (clang-format)
+        run: |
+          echo "Checking code format..."
+          for f in $(find . -name '*.c'); do
+            diff -u "$f" <(clang-format "$f") || (echo "❌ Format issues in $f" && exit 1)
+          done
+          echo "✅ Format OK"

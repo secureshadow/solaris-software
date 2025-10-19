@@ -1,5 +1,8 @@
 name: ESP-IDF Build
-on: [push]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   build-solaris-code:
