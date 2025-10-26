@@ -9,7 +9,7 @@
 //---------------------INIT------------------------------
 #define PIN_NUM_CS   18
 
-esp_err_t bmp390_init(data_t *p_dev);
+void bmp390_init(void *p_dev);
 
 //---------------------AUX------------------------------
 esp_err_t bmp390_write_reg(data_t *p_dev, uint8_t reg, uint8_t value);

@@ -3,13 +3,27 @@
 #include "driver/spi_common.h"
 #include "driver/spi_master.h"
 #include "macros.h"
+#include "osal/task.h"
+#include "core/returntypes.h"
+#include "core/types.h"
+#define SPP_MAX_STACK_BYTES  2048
 
 
 void app_main()
 {
-    retval_t ret;
+   void task_handle;
+   ret=SPP_OSAL_TaskCreate(bmp390_init, "BMP390_Init_Task",
+                         SPP_MAX_STACK_BYTES, NULL, SPP_OSAL_PRIORITY_NORMAL,
+                         &task_handle);
+   if (ret==SPP_ERROR_NULL_POINTER || ret==SPP_ERROR_INVALID_PARAMETER);
+   {
+      return;
+   }
+   
+   /*
+    SppRetVal_t ret;
     void* p_dev;
-
+SPP_MAX_STACK_BYTES
     ret = SPP_HAL_SPI_BusInit();
     if (ret != SPP_OK) return;
 
@@ -20,7 +34,8 @@ void app_main()
 
         ret = SPP_HAL_SPI_DeviceInit(p_dev);
         if (ret == SPP_ERROR) break; 
-    }
+    }*/
+
 }
 
 /*
