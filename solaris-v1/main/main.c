@@ -6,12 +6,12 @@
 #include "osal/task.h"
 #include "core/returntypes.h"
 #include "core/types.h"
-#define SPP_MAX_STACK_BYTES  2048
+
 
 
 void app_main()
 {
-   void task_handle;
+   SppTaskHandle_t task_handle=NULL;
    ret=SPP_OSAL_TaskCreate(bmp390_init, "BMP390_Init_Task",
                          SPP_MAX_STACK_BYTES, NULL, SPP_OSAL_PRIORITY_NORMAL,
                          &task_handle);
