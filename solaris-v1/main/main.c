@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "macros_esp.h"
 #include "spi.h"
 #include "driver/spi_common.h"
@@ -6,36 +7,64 @@
 #include "osal/task.h"
 #include "core/returntypes.h"
 #include "core/types.h"
+//simplemente lle pedina chat gpt un main para comprobar se funcionaba porque se chamaba ao bmp390 da problemas por esa parte(por o menos a ultima vez que probaramos segun recordo)
+static bool my_idle(void){ return false; }
 
+static void test_task(void* arg){
+    for(int i=0;i<3;i++){
+        SPP_OSAL_TaskDelayUntil(50);
+        spp_uint32_t p = SPP_OSAL_TaskPriorityGet(NULL);
+        SppTaskState  s = SPP_OSAL_TaskGetState(NULL);
+        printf("[TEST_Task] iter=%d prio=%d state=%d\n", i, (int)p, (int)s);
+    }
+    SPP_OSAL_TaskYield();
+    SPP_OSAL_TaskDelay(20);
+}
 
+void app_main(void){
+    void* h = NULL;
+    SppRetVal_t r;
 
-void app_main()
-{
-   SppTaskHandle_t task_handle=NULL;
-   ret=SPP_OSAL_TaskCreate(bmp390_init, "BMP390_Init_Task",
-                         SPP_MAX_STACK_BYTES, NULL, SPP_OSAL_PRIORITY_NORMAL,
-                         &task_handle);
-   if (ret==SPP_ERROR_NULL_POINTER || ret==SPP_ERROR_INVALID_PARAMETER);
-   {
-      return;
-   }
-   
-   /*
-    SppRetVal_t ret;
-    void* p_dev;
-SPP_MAX_STACK_BYTES
-    ret = SPP_HAL_SPI_BusInit();
-    if (ret != SPP_OK) return;
+    r = SPP_OSAL_IdleHookRegister(my_idle);
+    printf("[MAIN] IdleHookRegister ret=%d\n", (int)r);
 
-    for(int i = 0; i < MAX_DEVICES; i++)
-    {
-        p_dev = SPP_HAL_SPI_GetHandler();
-        if (p_dev == NULL) break;
+    r = SPP_OSAL_TaskCreate(test_task, "TEST_Task", SPP_OSAL_STACK_BYTES, NULL,
+                            SPP_OSAL_PRIORITY_NORMAL, &h);
+    printf("[MAIN] Create ret=%d handle=%p\n", (int)r, (void*)h);
+    if(r!=SPP_OK || !h) return;
 
-        ret = SPP_HAL_SPI_DeviceInit(p_dev);
-        if (ret == SPP_ERROR) break; 
-    }*/
+    spp_uint32_t pr = SPP_OSAL_TaskPriorityGet(h);
+    SppTaskState  st = SPP_OSAL_TaskGetState(h);
+    printf("[MAIN] Get prio=%d state=%d\n", (int)pr, (int)st);
 
+    r = SPP_OSAL_TaskPrioritySet(h, SPP_OSAL_PRIORITY_HIGH);
+    printf("[MAIN] PrioritySet ret=%d\n", (int)r);
+    pr = SPP_OSAL_TaskPriorityGet(h);
+    printf("[MAIN] New prio=%d\n", (int)pr);
+
+    r = SPP_OSAL_TaskYield();
+    printf("[MAIN] Yield ret=%d\n", (int)r);
+
+    r = SPP_OSAL_SuspendAll();
+    printf("[MAIN] SuspendAll ret=%d\n", (int)r);
+    r = SPP_OSAL_ResumeAll();
+    printf("[MAIN] ResumeAll ret=%d\n", (int)r);
+
+    r = SPP_OSAL_TaskSuspend(h);
+    printf("[MAIN] TaskSuspend ret=%d\n", (int)r);
+    SPP_OSAL_TaskDelay(100);
+    r = SPP_OSAL_TaskResume(h);
+    printf("[MAIN] TaskResume ret=%d\n", (int)r);
+
+    SPP_OSAL_TaskDelay(50);
+
+    pr = SPP_OSAL_TaskPriorityGet(h);
+    st = SPP_OSAL_TaskGetState(h);
+    printf("[MAIN] Before delete prio=%d state=%d\n", (int)pr, (int)st);
+
+    r = SPP_OSAL_TaskDelete(h);
+    printf("[MAIN] TaskDelete ret=%d\n", (int)r);
+    h = NULL;
 }
 
 /*
