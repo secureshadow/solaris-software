@@ -7,14 +7,10 @@ jobs:
 
     container:
       image: espressif/idf:v6.0-dev
-      # Importante en Fedora/SELinux para que el contenedor pueda escribir en /__w
       options: >-
         --security-opt label=disable
-        --volume /__w:/__w:Z
-        --volume /__e:/__e:Z
 
     steps:
-      # (Opcional) Por si tu runner creó /__w muy restrictivo
       - name: Fix permissions for GitHub workspace
         run: |
           chmod -R 777 "$GITHUB_WORKSPACE" || true
@@ -27,13 +23,11 @@ jobs:
           submodules: recursive
           token: ${{ secrets.CI_GH_TOKEN }}
 
-      # Refuerza URLs de submódulos y clonado anidado
       - name: Sync & init submodules (refuerzo)
         run: |
           git submodule sync --recursive
           git submodule update --init --recursive
 
-      # Herramientas que a veces faltan en la imagen
       - name: Ensure git & ssh client
         run: |
           apt-get update
