@@ -9,6 +9,7 @@ jobs:
       image: espressif/idf:v6.0-dev
       options: >-
         --user root
+        -v /var/run/docker.sock:/var/run/docker.sock
 
     steps:
       - name: Checkout (repo + submodules)
