@@ -6,6 +6,13 @@
     "args": { "USERNAME": "root", "USER_UID": "1000", "USER_GID": "1000" }
   },
 
+  "runArgs": [
+      "--privileged",
+      "--device-cgroup-rule=c 188:* rmw", 
+      "--device-cgroup-rule=c 166:* rmw",
+      "--volume=/dev:/dev"
+  ],
+
   "settings": { "terminal.integrated.defaultProfile.linux": "bash" },
 
   "extensions": [
