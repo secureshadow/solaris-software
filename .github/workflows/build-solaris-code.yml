@@ -7,8 +7,6 @@ jobs:
 
     container:
       image: espressif/idf:v6.0-dev
-      options: >-
-        -v /var/run/docker.sock:/var/run/docker.sock
 
     steps:
       - name: Fix permissions for GitHub workspace
