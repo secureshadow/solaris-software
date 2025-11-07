@@ -1,5 +1,7 @@
-#ifndef MACROS_H
-#define MACROS_H
+// #ifndef MACROS_H
+// #define MACROS_H
+
+#pragma once
 
 #include <driver/spi_master.h>
 
@@ -19,4 +21,4 @@ typedef struct {
     uint8_t data;
 } data_t;
 
-#endif
+// #endif

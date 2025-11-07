@@ -8,6 +8,7 @@
 
 #include "core/returntypes.h"
 #include "spi.h"
+#include "task.h"
 
 static esp_err_t ret;
 static const char* TAG = "BMP390";
@@ -29,13 +30,15 @@ float comp_press;
 void BmpInit(void* p_data)
 {
     for(;;){
+        vTaskDelay(pdMS_TO_TICKS(1000));
         // Declare variables
-        retval_t ret = SPP_ERROR;
-        void* p_spi_bmp;
+        // retval_t ret = SPP_ERROR;
+        // void* p_spi_bmp;
 
-        ret = SPP_HAL_SPI_BusInit();
-        p_spi_bmp = SPP_HAL_SPI_GetHandler();
-        ret = SPP_HAL_SPI_DeviceInit(p_spi_bmp);
+        // ret = SPP_HAL_SPI_BusInit();
+        // p_spi_bmp = SPP_HAL_SPI_GetHandler();
+        // ret = SPP_HAL_SPI_DeviceInit(p_spi_bmp);
+        SPP_OSAL_TaskDelete(NULL);
     }  
 
 }
