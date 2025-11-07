@@ -10,11 +10,16 @@
 void app_main()
 {
    // Create the task that inits the BMP390 device in the SPI bus
+   retval_t ret = SPP_ERROR;
    void *p_bmp_init;
-   p_bmp_init = SPP_OSAL_TaskCreate(BmpInit, "BMP390 Init Task", STACK_SIZE, NULL, BMP_INIT_PRIO, BMP_INIT_TASK_STACK_SIZE);
+   void * p_task_storage;
+   vTaskDelay(pdMS_TO_TICKS(1000));
+   p_task_storage = SPP_OSAL_GetTaskStorage();
+   p_bmp_init = SPP_OSAL_TaskCreate(BmpInit, "BMP390 Init Task", STACK_SIZE, NULL, BMP_INIT_PRIO, p_task_storage);
    if (p_bmp_init == NULL){
       return;
    }
+
 }  
 
 /*

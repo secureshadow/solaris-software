@@ -1,8 +1,8 @@
 #ifndef GENERAL_H
 #define GENERAL_H
 
-#include "esp_err.h"
 #include "macros.h"  // Para la definición de data_t
+#include "esp_err.h"
 
 // Inicializa la comunicación con IMU y barómetro utilizando los structs pasados como parámetros.
 // Devuelve ESP_OK si la inicialización es exitosa, o un código de error en caso contrario.
