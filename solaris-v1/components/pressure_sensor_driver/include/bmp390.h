@@ -30,11 +30,11 @@ esp_err_t bmp390_read(data_t *p_dev, uint8_t reg, uint8_t *dst, size_t len);
 #define BMP390_IF_CONF_REG    0x1A
 #define BMP390_IF_CONF_SPI    0x00
 
-esp_err_t bmp390_soft_reset(data_t *p_dev);
-esp_err_t bmp390_enable_spi_mode(data_t *p_dev);
+retval_t bmp390_soft_reset(void *p_data);
+retval_t bmp390_enable_spi_mode(data_t *p_data);
 
-esp_err_t bmp390_read_if_conf(data_t *p_dev, uint8_t *if_conf);
-esp_err_t bmp390_read_chip_id(data_t *p_dev, uint8_t *chip_id);
+//esp_err_t bmp390_read_if_conf(data_t *p_dev, uint8_t *if_conf);
+//esp_err_t bmp390_read_chip_id(data_t *p_dev, uint8_t *chip_id);
 
 //-----------------------PREPARE READ-----------------------
 
@@ -42,25 +42,19 @@ esp_err_t bmp390_read_chip_id(data_t *p_dev, uint8_t *chip_id);
 #define BMP390_REG_PWRCTRL     0x1B
 #define BMP390_VALUE_PWRCTRL   0x33   //(0x30 | 0x01 | 0x02) = 0x33 (normal|press_en|temp_en)
 
-esp_err_t bmp390_set_mode_normal(data_t *p_dev);
-
 //Oversampling
 #define BMP390_REG_OSR           0x1C
 #define BMP390_VALUE_OSR         0x00 //adaptar según que busquemos (precisión-tiempo-energía) con este +-0.2m
-
-esp_err_t bmp390_set_osr_temp(data_t *p_dev);
 
 //Output Data Rate
 #define BMP390_REG_ODR         0x1D
 #define BMP390_VALUE_ODR       0x02 //50Hz
 
-esp_err_t bmp390_set_odr(data_t *p_dev);
-
 //Filtro
 #define BMP390_REG_IIR   0x1F
 #define BMP390_VALUE_IIR    0x02 //coeficiente 1 (adaptar)
 
-esp_err_t bmp390_set_iir(data_t *p_dev);
+retval_t bmp390_prepare_measure(void* p_spi);
 
 //Status
 #define BMP390_REG_STATUS         0x03
