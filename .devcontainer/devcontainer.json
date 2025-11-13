@@ -12,7 +12,9 @@
     "espressif.esp-idf-extension",
     "vsciot-vscode.vscode-arduino",
     "ms-vscode.cpptools",
-    "eamodio.gitlens"
+    "eamodio.gitlens",
+    "cschlosser.doxdocgen",
+    "samubarb.vscode-doxyfile"
   ],
 
   "remoteUser": "root",
