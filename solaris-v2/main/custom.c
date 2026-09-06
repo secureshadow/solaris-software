@@ -18,6 +18,9 @@
 #include "spp/services/kpid.h"
 #include "spp/services/service.h"
 
+#include "spp/ports/hal/esp32/halEsp32.h"
+#include "spp/hal/hal.h"
+#include "spp/hal/time/time.h"
 /* ----------------------------------------------------------------
  * STATIC FUNCTIONS DECLARATIONS
  * ---------------------------------------------------------------- */
@@ -54,8 +57,8 @@ static FSM_Transition_t s_transitionTable[] = {
 static FsmErrors_t s_fsmErrors = {0};
 static const SPP_SERVICE_ProducerContract_t *s_p_bmpProducerContract = NULL;
 
-static spp_uint16_t s_performanceSamples = 0U;
-static spp_bool_t s_performanceFinished = false;
+static spp_uint16_t s_processedSamples = 0U;
+static spp_uint32_t s_busyTimeUs = 0U;
 
 /* ----------------------------------------------------------------
  * PUBLIC FUNCTIONS
@@ -65,9 +68,14 @@ const FSM_Transition_t *CUSTOM_getFsmTable(void)
     return s_transitionTable;
 }
 
-spp_bool_t CUSTOM_isPerformanceFinished(void)
+spp_uint32_t CUSTOM_getBusyTimeUs(void)
 {
-    return s_performanceFinished;
+    return s_busyTimeUs;
+}
+
+spp_uint16_t CUSTOM_getProcessedSamples(void)
+{
+    return s_processedSamples;
 }
 
 /* ----------------------------------------------------------------
@@ -136,8 +144,23 @@ static void action_emitTelemetry(void)
 
 static void statefunction_bmpPerformanceLoop(void)
 {
-    (void)SPP_SERVICES_PUBSUB_callProducers();
-    (void)SPP_SERVICES_PUBSUB_callConsumers();
+    spp_uint8_t c0 = SPP_SERVICES_PUBSUB_queueDepth();
+
+    spp_uint32_t t0 = SPP_HAL_TIME_getTimeUs();
+
+    SPP_SERVICES_PUBSUB_callProducers();
+
+    spp_uint8_t c1 = SPP_SERVICES_PUBSUB_queueDepth();
+
+    SPP_SERVICES_PUBSUB_callConsumers();
+
+    spp_uint32_t t1 = SPP_HAL_TIME_getTimeUs();
+
+    if (c1 > c0)
+    {
+        s_busyTimeUs += t1 - t0;
+        s_processedSamples++;
+    }
 }
 
 

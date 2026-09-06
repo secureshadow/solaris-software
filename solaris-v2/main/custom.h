@@ -16,8 +16,6 @@
  * ---------------------------------------------------------------- */
 #define K_CUSTOM_FSM_TABLE_SIZE (spp_uint8_t)(2U)
 
-#define K_CUSTOM_PERFORMANCE_SAMPLES 1000
-
 /* ----------------------------------------------------------------
 * STRUCTS
 * ---------------------------------------------------------------- */
@@ -48,7 +46,8 @@ typedef union
 // TODO: Add Doxygen
 const FSM_Transition_t *CUSTOM_getFsmTable(void);
 
-spp_bool_t CUSTOM_isPerformanceFinished(void);
+spp_uint32_t CUSTOM_getBusyTimeUs(void);
+spp_uint16_t CUSTOM_getProcessedSamples(void);
 
 
 #endif /* CUSTOM_H*/

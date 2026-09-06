@@ -41,23 +41,22 @@ void app_main(void)
 
     spp_uint32_t t0 = SPP_HAL_TIME_getTimeUs();
 
-    while (SPP_SERVICES_BMP390_getPerformanceSampleCount() < K_CUSTOM_PERFORMANCE_SAMPLES)
+    while (CUSTOM_getProcessedSamples() < 10000)
     {
         FSM_tick();
     }
 
     spp_uint32_t t1 = SPP_HAL_TIME_getTimeUs();
 
-    for (spp_uint16_t i = 0U; i < K_CUSTOM_PERFORMANCE_SAMPLES; i++)
-    {
-        spp_uint32_t bmpUs = 0U;
-        spp_uint32_t tempSpiUs = 0U;
-        spp_uint32_t pressSpiUs = 0U;
+    spp_uint32_t totalTimeUs = t1 - t0;
+    spp_uint32_t busyTimeUs = CUSTOM_getBusyTimeUs();
+    spp_float32_t utilization = ((spp_float32_t)busyTimeUs * 100.0f) / (spp_float32_t)totalTimeUs;
 
-        if (SPP_SERVICES_BMP390_getPerformanceSample(i, &bmpUs, &tempSpiUs, &pressSpiUs) == K_SPP_OK)
-        {
-            printf("%lu,%lu,%lu\n", (unsigned long)bmpUs, (unsigned long)tempSpiUs, (unsigned long)pressSpiUs);
-        }
-    }
-    printf("Benchmark time: %lu us\n", (unsigned long)(t1 - t0));
+    printf("Total time: %lu us\n", (unsigned long)totalTimeUs);
+
+    printf("Busy time: %lu us\n", (unsigned long)busyTimeUs);
+
+    printf("Processed samples: %u\n", (unsigned int)CUSTOM_getProcessedSamples());
+
+    printf("SPP processing utilization: %.2f %%\n", (double)utilization);
 }
