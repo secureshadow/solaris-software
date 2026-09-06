@@ -15,6 +15,11 @@ jobs:
     env:
       CI_IMAGE: solaris-ci:latest
     steps:
+      - name: Clean workspace
+        run: |
+          sudo chown -R "$(id -u):$(id -g)" "${{ github.workspace }}" 2>/dev/null || true
+          rm -rf doc website/site
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -34,7 +39,9 @@ jobs:
         run: |
           docker image inspect "$CI_IMAGE" >/dev/null 2>&1 \
             || docker build -f .github/Dockerfile.ci -t "$CI_IMAGE" .
+          mkdir -p doc
           docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp \
+            --security-opt label=disable \
             -v "${{ github.workspace }}:/workspace" -w /workspace \
             "$CI_IMAGE" \
             bash -c 'doxygen Doxyfile'
