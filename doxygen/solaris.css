@@ -21,6 +21,12 @@ html,
 html.dark-mode {
     color-scheme: dark;
 
+    /* --- sizing: nav tree + search bar bigger than the theme default -- */
+    --navigation-font-size: 16px;
+    --searchbar-height: 40px;
+    --searchbar-width: 300px;
+    --tree-item-height: 34px;
+
     /* --- brand accents ------------------------------------------------ */
     --primary-color:          #d8813a;   /* orange - headings, active nav, rules   */
     --primary-dark-color:     #b8692a;   /* pressed / visited                      */
@@ -195,27 +201,76 @@ img.footer { opacity: .5; }
 #nav-path .footer a { color: var(--solaris-link); }
 
 /* --- search box ------------------------------------------------------------
-   With DISABLE_INDEX = YES the search box lives in the title area. Pin it to
-   the top-right corner and reserve room on the title block so it never sits
-   on top of the project name / brief ("the nav bar eats the search"). */
-#titlearea { position: relative; }
-#MSearchBox {
-    position: absolute;
-    top: var(--spacing-medium);
-    right: var(--spacing-medium);
-    margin: 0;
-    width: 240px;
-    z-index: 2;
-}
-#MSearchField { width: calc(240px - 40px); }
-#projectalign { padding-right: calc(240px + 2 * var(--spacing-large)); }
+   With DISABLE_INDEX = YES the search box sits in the title-area table. Make
+   that table span the header, push the search cell to the far right and drop
+   it onto its own full-width row on narrow screens. */
+/* doxygen-awesome makes #top a flex row with an (empty, DISABLE_INDEX=YES)
+   #main-nav eating the right half. Kill that and let the title area span the
+   whole header so the search box can reach the far right. */
+#main-nav:empty { display: none; }
+#top > #titlearea { flex: 1 1 auto; }
 
-@media screen and (max-width: 820px) {
-    #MSearchBox {
-        position: static;
+#titlearea {
+    min-height: 78px;
+    padding: var(--spacing-small) var(--spacing-large);
+    box-sizing: border-box;
+}
+#titlearea > table {
+    width: 100%;
+    table-layout: auto;
+}
+#titlearea > table td { vertical-align: middle; }
+#titlearea > table td:last-child {
+    width: calc(var(--searchbar-width) + var(--spacing-large));
+    text-align: right;
+    white-space: nowrap;
+}
+#MSearchBox {
+    position: relative;
+    display: inline-block;
+    width: var(--searchbar-width);
+    margin: 0;
+    vertical-align: middle;
+}
+#MSearchField { width: calc(var(--searchbar-width) - 56px); }
+
+@media screen and (max-width: 900px) {
+    #titlearea { min-height: 0; }
+    #titlearea > table,
+    #titlearea > table tbody,
+    #titlearea > table tr { display: block; }
+    #titlearea > table td:last-child {
+        display: block;
         width: 100%;
-        margin-top: var(--spacing-small);
+        text-align: left;
+        padding-top: var(--spacing-medium);
     }
-    #MSearchField { width: calc(100% - 40px); }
-    #projectalign { padding-right: 0; }
+    #MSearchBox { display: block; width: 100%; }
+    #MSearchField { width: calc(100% - 56px); }
+}
+
+/* --- nav tree: roomier rows + clearer expand arrows ------------------- */
+#nav-tree .arrow {
+    font-size: 120%;
+    opacity: .8;
+    width: 18px;
+}
+#nav-tree div.item,
+#nav-tree .item > a,
+#nav-tree .label {
+    line-height: var(--tree-item-height);
+}
+#nav-tree { padding-top: var(--spacing-small); }
+
+/* --- search dropdowns (scope selector + results): readable size ------- */
+#MSearchSelectWindow,
+#MSearchResultsWindow {
+    font-size: var(--navigation-font-size);
+    border: 1px solid var(--separator-color);
+    border-radius: var(--border-radius-medium);
+    padding: var(--spacing-small) 0;
+}
+#MSearchSelectWindow a.SelectItem {
+    padding: 6px 12px;
+    line-height: 1.6;
 }

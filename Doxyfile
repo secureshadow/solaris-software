@@ -1,7 +1,7 @@
 # Doxyfile for Solaris Software
 
 PROJECT_NAME           = "Solaris Software"
-PROJECT_BRIEF          = "Open-source amateur rocketry firmware for the ESP32-S3"
+PROJECT_BRIEF          = "Open-source software for amateur rocketry"
 PROJECT_NUMBER         = "v2"
 PROJECT_LOGO           = doxygen/assets/logo.png
 
