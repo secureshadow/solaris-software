@@ -1,25 +1,53 @@
 name: Deploy web
 on:
+  workflow_dispatch:
   push:
     paths:
       - 'website/**'
+      - 'doxygen/**'
+      - 'Doxyfile'
+      - 'mainpage.dox'
+      - '.github/workflows/deploy-website.yml'
 jobs:
   deploy:
     if: github.ref == 'refs/heads/main'
     runs-on: self-hosted
+    env:
+      CI_IMAGE: solaris-ci:latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          submodules: false
+          persist-credentials: false
+          token: ${{ secrets.CI_GH_TOKEN }}
 
-      - name: Montar la web
+      - name: Fetch SPP submodule
+        run: |
+          git config --global --add safe.directory "${{ github.workspace }}"
+          git config --global url."https://x-access-token:${{ secrets.CI_GH_TOKEN }}@github.com/".insteadOf "git@github.com:"
+          git config --global url."https://x-access-token:${{ secrets.CI_GH_TOKEN }}@github.com/".insteadOf "https://github.com/"
+          git submodule update --init --depth 1 solaris-v2/spp
+
+      - name: Generate API reference (Doxygen)
+        run: |
+          docker image inspect "$CI_IMAGE" >/dev/null 2>&1 \
+            || docker build -f .github/Dockerfile.ci -t "$CI_IMAGE" .
+          docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp \
+            -v "${{ github.workspace }}:/workspace" -w /workspace \
+            "$CI_IMAGE" \
+            bash -c 'doxygen Doxyfile'
+
+      - name: Build website
         run: |
           cd website
           python3 -m venv .venv
           .venv/bin/pip install --quiet -r requirements.txt
           .venv/bin/mkdocs build
+          mkdir -p site/doxygen
+          cp -a ../doc/html/. site/doxygen/
 
-      - name: Publicar en el servidor
+      - name: Publish to server
         run: |
           rsync -av --delete website/site/ "/home/solaris/solaris-web/html/"

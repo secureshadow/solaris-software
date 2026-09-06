@@ -130,25 +130,26 @@ jobs:
             -w /workspace \
             $CI_IMAGE \
             bash -c '
+              set -e
               mkdir -p doc/cppcheck
+              python3 scripts/misra_ruletexts.py --all-rules \
+                --pointer-edition "MISRA C:2025" -o misra_rules.generated.txt
               cppcheck \
-                --addon=misra \
+                --addon=.github/misra-addon.json \
                 --enable=all \
                 --std=c11 \
                 --error-exitcode=0 \
                 --suppress=missingIncludeSystem \
                 --suppress=unusedFunction \
                 --xml \
-                -I solaris-v2/spp/include \
-                -I solaris-v2/spp/ports/hal/esp32/include \
+                $(python3 scripts/cppcheck_includes.py solaris-v2/spp solaris-v2/main) \
+                -i solaris-v2/spp/tests \
                 solaris-v2/main/main.c \
-                solaris-v2/spp/src/ \
-                solaris-v2/spp/services/ \
-                solaris-v2/spp/ports/ \
+                solaris-v2/spp \
                 2> cppcheck-result.xml
               cppcheck-htmlreport \
                 --file=cppcheck-result.xml \
-                --title="Solaris MISRA-C Report" \
+                --title="Solaris MISRA-C:2025 Report" \
                 --report-dir=doc/cppcheck \
                 --source-dir=.
             '

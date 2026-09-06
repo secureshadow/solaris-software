@@ -1,33 +1,45 @@
 # Doxyfile for Solaris Software
 
 PROJECT_NAME           = "Solaris Software"
-PROJECT_BRIEF          = "Open-source amateur rocketry firmware for ESP32-S3"
-PROJECT_NUMBER         = "v1"
+PROJECT_BRIEF          = "Open-source amateur rocketry firmware for the ESP32-S3"
+PROJECT_NUMBER         = "v2"
+PROJECT_LOGO           = doxygen/assets/logo.png
 
 # Input
 INPUT                  = mainpage.dox \
-                         solaris-v1/main \
-                         solaris-v1/spp/core \
-                         solaris-v1/spp/hal \
-                         solaris-v1/spp/util \
-                         solaris-v1/spp/services \
-                         solaris-v1/spp/ports
+                         solaris-v2/main \
+                         solaris-v2/spp
 FILE_PATTERNS          = *.c *.h *.dox
 RECURSIVE              = YES
-EXCLUDE_PATTERNS       = */build/* */tests/*
+EXCLUDE_PATTERNS       = */build/* */tests/* */.cache/*
 
 # Output
 OUTPUT_DIRECTORY       = doc
 GENERATE_HTML          = YES
 HTML_OUTPUT            = html
-HTML_COLORSTYLE        = LIGHT
 HTML_DYNAMIC_SECTIONS  = YES
-HTML_TIMESTAMP         = YES
 GENERATE_LATEX         = NO
+SEARCHENGINE           = YES
+
+# HTML theme - doxygen-awesome-css (vendored under doxygen/theme/) plus the
+# Solaris overrides. doxygen-awesome requires HTML_COLORSTYLE = LIGHT; the
+# site is dark-only, so doxygen/header.html ships <html class="dark-mode">
+# and doxygen/solaris.css pins the dark palette.
+HTML_COLORSTYLE        = LIGHT
 GENERATE_TREEVIEW      = YES
 DISABLE_INDEX          = NO
 FULL_SIDEBAR           = NO
-SEARCHENGINE           = YES
+HTML_HEADER            = doxygen/header.html
+HTML_FOOTER            = doxygen/footer.html
+HTML_EXTRA_STYLESHEET  = doxygen/theme/doxygen-awesome.css \
+                         doxygen/theme/doxygen-awesome-sidebar-only.css \
+                         doxygen/solaris.css
+HTML_EXTRA_FILES       = doxygen/theme/doxygen-awesome-fragment-copy-button.js \
+                         doxygen/theme/doxygen-awesome-paragraph-link.js \
+                         doxygen/theme/doxygen-awesome-interactive-toc.js \
+                         doxygen/theme/doxygen-awesome-tabs.js \
+                         doxygen/assets/jetbrains_mono_regular.woff2 \
+                         doxygen/assets/favicon.png
 
 # Extraction
 EXTRACT_ALL            = YES
@@ -49,7 +61,6 @@ CALL_GRAPH             = YES
 CALLER_GRAPH           = YES
 DOT_IMAGE_FORMAT       = svg
 INTERACTIVE_SVG        = YES
-CLASS_DIAGRAMS         = YES
 COLLABORATION_GRAPH    = YES
 INCLUDE_GRAPH          = YES
 INCLUDED_BY_GRAPH      = YES

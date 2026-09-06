@@ -1,28 +1,41 @@
-# Doxygen API docs
+# Doxygen API reference
 
-This folder is a placeholder for the generated API reference (every function, struct and macro, pulled from the source comments). It's not published anywhere yet — these are just the instructions to generate it locally in the meantime.
+The C API reference for `solaris-v2` (every file, function, struct and macro,
+pulled from the source comments). It is themed to match the Solaris
+documentation site and is published as the **API (Doxygen)** section of it.
 
-## Requirements
+## Layout
 
-- `doxygen` installed (`sudo apt install doxygen`, or `brew install doxygen` on macOS).
-- Optional: `graphviz`, if you want call graphs.
+| Path | What |
+|------|------|
+| `../Doxyfile`        | configuration (`INPUT = mainpage.dox solaris-v2/main solaris-v2/spp`) |
+| `../mainpage.dox`    | the landing page |
+| `header.html` / `footer.html` | Doxygen 1.9.8 templates, wired for the theme and forced dark |
+| `solaris.css`        | palette / font overrides (Gruvbox dark, JetBrains Mono) |
+| `theme/`             | vendored [doxygen-awesome-css](https://github.com/jothepro/doxygen-awesome-css) v2.3.4 (MIT, see `theme/LICENSE`) |
+| `assets/`            | logo, favicon, font copied into the output |
 
-## Generating it
+## Generating it locally
 
-From the repository root:
+From the repository root, with `doxygen` (>= 1.9.8) and `graphviz` installed:
 
 ```bash
-doxygen Doxyfile
+doxygen Doxyfile          # output in doc/html/ ; open doc/html/index.html
 ```
 
-Output goes to `doc/html/`. Open `doc/html/index.html` in a browser.
+`doc/` is git-ignored.
 
-## Known issue
+## CI
 
-The root `Doxyfile`'s `INPUT` still points at `solaris-v1/...` paths, which don't exist anymore — the active firmware is `solaris-v2`. Update `INPUT` to `solaris-v2/main` and `solaris-v2/spp` before running it, otherwise the generated docs will be nearly empty.
+`.github/workflows/deploy-website.yml` regenerates this in the `solaris-ci`
+container, copies `doc/html/` into `website/site/doxygen/`, and deploys it with
+the rest of the site. It runs on pushes to `website/**`, `doxygen/**`,
+`Doxyfile` or `mainpage.dox`, and on manual dispatch.
 
-## TODO
+## Notes
 
-- Fix the `INPUT` paths above.
-- Generate and publish the HTML somewhere.
-- Update the "API (Doxygen)" link in the website nav to point at it.
+- The site is dark-only, so `header.html` ships `<html class="dark-mode">` and
+  `solaris.css` pins the dark palette; `HTML_COLORSTYLE` stays `LIGHT` because
+  doxygen-awesome-css requires it.
+- Source doc-comment warnings (mismatched `@param`, stale `\file` names, etc.)
+  are pre-existing and don't fail the build (`WARN_AS_ERROR = NO`).
