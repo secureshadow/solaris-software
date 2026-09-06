@@ -1,5 +1,7 @@
+# The Solaris Packet   {#packet}
+
 The Solaris packet is composed of a primary header, secondary header, payload and crc16.
-![Solaris Packet](assets/packet.svg){ .center }
+![Solaris Packet](packet.svg)
 
 The primary header contains:
 

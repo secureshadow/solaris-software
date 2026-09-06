@@ -1,3 +1,5 @@
+# Reading the code   {#core-overview}
+
 This chapter is the detailed design part of the documentation: one page per component, each one explaining what it's for, how it behaves, and how it talks to the others.
 
 This page is the map for that chapter. If you've just opened main.c for the first time and you're wondering where to go next, start here.

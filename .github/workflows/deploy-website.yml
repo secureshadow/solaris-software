@@ -2,12 +2,7 @@ name: Deploy web
 on:
   workflow_dispatch:
   push:
-    paths:
-      - 'website/**'
-      - 'doxygen/**'
-      - 'Doxyfile'
-      - 'mainpage.dox'
-      - '.github/workflows/deploy-website.yml'
+    branches: [main]
 jobs:
   deploy:
     if: github.ref == 'refs/heads/main'
@@ -18,7 +13,7 @@ jobs:
       - name: Clean workspace
         run: |
           sudo chown -R "$(id -u):$(id -g)" "${{ github.workspace }}" 2>/dev/null || true
-          rm -rf doc website/site
+          rm -rf doc
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,7 +30,7 @@ jobs:
           git config --global url."https://x-access-token:${{ secrets.CI_GH_TOKEN }}@github.com/".insteadOf "https://github.com/"
           git submodule update --init --depth 1 solaris-v2/spp
 
-      - name: Generate API reference (Doxygen)
+      - name: Build docs site (Doxygen)
         run: |
           docker image inspect "$CI_IMAGE" >/dev/null 2>&1 \
             || docker build -f .github/Dockerfile.ci -t "$CI_IMAGE" .
@@ -46,15 +41,6 @@ jobs:
             "$CI_IMAGE" \
             bash -c 'doxygen Doxyfile'
 
-      - name: Build website
-        run: |
-          cd website
-          python3 -m venv .venv
-          .venv/bin/pip install --quiet -r requirements.txt
-          .venv/bin/mkdocs build
-          mkdir -p site/doxygen
-          cp -a ../doc/html/. site/doxygen/
-
       - name: Publish to server
         run: |
-          rsync -av --delete website/site/ "/home/solaris/solaris-web/html/"
+          rsync -av --delete doc/html/ "/home/solaris/solaris-web/html/"

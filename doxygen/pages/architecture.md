@@ -1,4 +1,4 @@
-# How the repository is organized
+# How the repository is organized   {#architecture}
 
 Solaris is actually two repositories glued together: **solaris-software**, the one you clone first, and **solaris-packet-protocol** (SPP), pulled in as a git submodule at solaris-v2/spp. The split follows a simple rule: anything that doesn't care which board it's running on lives in SPP, and anything that does — plus all the tooling to build, flash and debug the real hardware — lives in solaris-software.
 

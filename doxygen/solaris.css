@@ -193,3 +193,29 @@ img.inline {
 /* --- doxygen credit image in the footer: dim it, it clashes on dark -- */
 img.footer { opacity: .5; }
 #nav-path .footer a { color: var(--solaris-link); }
+
+/* --- search box ------------------------------------------------------------
+   With DISABLE_INDEX = YES the search box lives in the title area. Pin it to
+   the top-right corner and reserve room on the title block so it never sits
+   on top of the project name / brief ("the nav bar eats the search"). */
+#titlearea { position: relative; }
+#MSearchBox {
+    position: absolute;
+    top: var(--spacing-medium);
+    right: var(--spacing-medium);
+    margin: 0;
+    width: 240px;
+    z-index: 2;
+}
+#MSearchField { width: calc(240px - 40px); }
+#projectalign { padding-right: calc(240px + 2 * var(--spacing-large)); }
+
+@media screen and (max-width: 820px) {
+    #MSearchBox {
+        position: static;
+        width: 100%;
+        margin-top: var(--spacing-small);
+    }
+    #MSearchField { width: calc(100% - 40px); }
+    #projectalign { padding-right: 0; }
+}

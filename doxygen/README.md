@@ -1,23 +1,37 @@
-# Doxygen API reference
+# Documentation site (Doxygen)
 
-The C API reference for `solaris-v2` (every file, function, struct and macro,
-pulled from the source comments). It is themed to match the Solaris
-documentation site and is published as the **API (Doxygen)** section of it.
+The whole Solaris Software site **is** Doxygen: the narrative guides and the C
+API reference are one generated site, themed to match the old MkDocs look
+(dark, JetBrains Mono, doxygen-awesome-css).
 
 ## Layout
 
 | Path | What |
 |------|------|
-| `../Doxyfile`        | configuration (`INPUT = mainpage.dox solaris-v2/main solaris-v2/spp`) |
-| `../mainpage.dox`    | the landing page |
+| `../Doxyfile`        | configuration |
+| `pages/`             | the narrative guides, as Markdown (`*.md`); `pages/index.md` is the front page |
+| `pages/assets/`      | images used by those pages |
 | `header.html` / `footer.html` | Doxygen 1.9.8 templates, wired for the theme and forced dark |
-| `solaris.css`        | palette / font overrides (Gruvbox dark, JetBrains Mono) |
+| `solaris.css`        | palette / font overrides + search-box placement |
 | `theme/`             | vendored [doxygen-awesome-css](https://github.com/jothepro/doxygen-awesome-css) v2.3.4 (MIT, see `theme/LICENSE`) |
 | `assets/`            | logo, favicon, font copied into the output |
 
-## Generating it locally
+The API side is generated from the source comments in `solaris-v2/main` and
+`solaris-v2/spp` (see `INPUT` in the Doxyfile).
 
-From the repository root, with `doxygen` (>= 1.9.8) and `graphviz` installed:
+## Adding / editing a guide
+
+1. Add or edit `pages/<name>.md`. Start it with `# Title   {#name}` so the
+   page has a stable id.
+2. Link it into the nav: add `@subpage <name>` to the relevant parent page
+   (`index.md`, `start-here.md`, `repositories.md`, `spp-arch.md`,
+   `spp-detail.md`).
+3. Put images under `pages/assets/` and reference them by bare filename:
+   `![alt](foo.svg)`.
+
+## Building locally
+
+From the repository root, with `doxygen` (>= 1.9.8) and `graphviz`:
 
 ```bash
 doxygen Doxyfile          # output in doc/html/ ; open doc/html/index.html
@@ -27,15 +41,17 @@ doxygen Doxyfile          # output in doc/html/ ; open doc/html/index.html
 
 ## CI
 
-`.github/workflows/deploy-website.yml` regenerates this in the `solaris-ci`
-container, copies `doc/html/` into `website/site/doxygen/`, and deploys it with
-the rest of the site. It runs on pushes to `website/**`, `doxygen/**`,
-`Doxyfile` or `mainpage.dox`, and on manual dispatch.
+`.github/workflows/deploy-website.yml` rebuilds the site in the `solaris-ci`
+container on **every push to `main`** (and on manual dispatch) and rsyncs
+`doc/html/` to the web server.
 
 ## Notes
 
-- The site is dark-only, so `header.html` ships `<html class="dark-mode">` and
-  `solaris.css` pins the dark palette; `HTML_COLORSTYLE` stays `LIGHT` because
-  doxygen-awesome-css requires it.
-- Source doc-comment warnings (mismatched `@param`, stale `\file` names, etc.)
-  are pre-existing and don't fail the build (`WARN_AS_ERROR = NO`).
+- Dark-only: `header.html` ships `<html class="dark-mode">` and `solaris.css`
+  pins the palette; `HTML_COLORSTYLE` stays `LIGHT` (doxygen-awesome needs it).
+- `DISABLE_INDEX = YES` so the search box sits in the title bar (with
+  `DISABLE_INDEX = NO` the sidebar layout was hiding it).
+- `*/README.md` and `*/LICENSE.md` are excluded so stray source-tree markdown
+  doesn't turn into pages.
+- Source doc-comment warnings (mismatched `@param`, etc.) are pre-existing and
+  don't fail the build (`WARN_AS_ERROR = NO`).

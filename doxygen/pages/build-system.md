@@ -1,3 +1,5 @@
+# Build system (CMake)   {#build-system}
+
 SPP is built with CMake, and the whole point of the setup is that you rarely build all of it. Core files are always compiled, but every service and every platform port is behind a CMake option, off or on, so the final binary only carries what your project actually uses.
 
 There are two separate places where this happens, because SPP gets built two different ways:

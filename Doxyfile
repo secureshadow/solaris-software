@@ -5,13 +5,18 @@ PROJECT_BRIEF          = "Open-source amateur rocketry firmware for the ESP32-S3
 PROJECT_NUMBER         = "v2"
 PROJECT_LOGO           = doxygen/assets/logo.png
 
-# Input
-INPUT                  = mainpage.dox \
+# Input - the narrative pages (doxygen/pages) plus the firmware sources.
+INPUT                  = doxygen/pages \
                          solaris-v2/main \
                          solaris-v2/spp
-FILE_PATTERNS          = *.c *.h *.dox
+FILE_PATTERNS          = *.c *.h *.dox *.md
 RECURSIVE              = YES
-EXCLUDE_PATTERNS       = */build/* */tests/* */.cache/*
+EXCLUDE_PATTERNS       = */build/* */tests/* */.cache/* */README.md */LICENSE.md
+IMAGE_PATH             = doxygen/pages/assets \
+                         doxygen/assets
+USE_MDFILE_AS_MAINPAGE = doxygen/pages/index.md
+MARKDOWN_SUPPORT       = YES
+TOC_INCLUDE_HEADINGS   = 3
 
 # Output
 OUTPUT_DIRECTORY       = doc
@@ -27,12 +32,11 @@ SEARCHENGINE           = YES
 # and doxygen/solaris.css pins the dark palette.
 HTML_COLORSTYLE        = LIGHT
 GENERATE_TREEVIEW      = YES
-DISABLE_INDEX          = NO
+DISABLE_INDEX          = YES
 FULL_SIDEBAR           = NO
 HTML_HEADER            = doxygen/header.html
 HTML_FOOTER            = doxygen/footer.html
 HTML_EXTRA_STYLESHEET  = doxygen/theme/doxygen-awesome.css \
-                         doxygen/theme/doxygen-awesome-sidebar-only.css \
                          doxygen/solaris.css
 HTML_EXTRA_FILES       = doxygen/theme/doxygen-awesome-fragment-copy-button.js \
                          doxygen/theme/doxygen-awesome-paragraph-link.js \
